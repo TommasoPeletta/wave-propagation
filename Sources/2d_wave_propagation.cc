@@ -19,9 +19,8 @@ typedef double vecteur[2];
 
 
 // !!!! A FAIRE !!!!!
-
-// tabl_n initialisation
-// Afficahge stylé
+// Source continue
+// Affichage 2D stylé
 
 
 double vectors_prod(double x[2],double y[2])
@@ -95,21 +94,24 @@ int rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule d
 
 
 void afficher(type_F matrix) { //Fonction pour afficher une matrice
+  //for (int k = 0; k < 5; k++){
+  int k = 0;
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
-      cout << rhoComputation(matrix, x, y) << "    ";
+      cout << matrix[x][y][k] << "    ";
     }
     cout << endl;
   }
   cout << endl;
+//}
 }
 
 void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double f_in[sizeX][sizeY][q+1] ){
   type_F f_out;
   //calcul de vj = vi * j
   double rho;
-  double vj = 2; //!!!!!
-  double nn = 0.4; //!!!!!!
+//  double vj = 2; //!!!!!
+//  double nn = 0.4; //!!!!!!
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
       rho = rhoComputation(f_in,i,j);
@@ -120,7 +122,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
         double vi_aux[2];
         vi_aux[0] = vi[k][0];
         vi_aux[1] = vi[k][1];
-        vj = vectors_prod(vi_aux,j_sum);
+        double vj = vectors_prod(vi_aux,j_sum);
         if (k != 0){
           f_out[i][j][k] = 2/(pow(n[i][j],2)* q) * rho + (1/v) * vj - f_in[i][j][k];//+ (1/v) * vj
           //f_out[i][j][k] = 2/(pow(nn,2)* q) * rho - f_in[i][j][k];
@@ -146,38 +148,39 @@ void fill_matrix_n(type_coeff_reffrac matrix, int startY, int width,int startX, 
   }
 }
 
+void source(double ampl, double frequence){
+
+}
+
 int main() {
     type_F f_in = {{{0}}};
     type_coeff_reffrac tabl_n;
     fill_matrix_n(tabl_n,4,2,2,7,1.2,1.2);
-    /*for (int x = 0; x < sizeX; x++){
-      for (int y = 0; y < sizeY; y++){
-        cout << tabl_n[x][y] << "    ";
-      }
-      cout << endl;
-    }
-    cout << endl;*/
-    double deltaX = 2;
+    double deltaX = 6;
     double deltaT = 3;
     double v = deltaX/deltaT;
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
+
+    vector<std::array<int, 4> vectSource;
+    int tmp[2] = {5,5};
+    vectSource.push_back(tmp);
 
     f_in[2][3][0] = 0;
     f_in[2][3][1] = 0;
     f_in[2][3][2] = 0;
     f_in[2][3][3] = 0;
-    f_in[2][3][4] = 100;
+    f_in[2][3][4] = 50;
     afficher(f_in);
-    for (int i = 1; i <= 4;i++){
+    //foutComputation(tabl_n,v,vi,f_in);
+    //cout << "ETAPE 1 : " << endl;
+    //afficher(f_in);
+    for (int i = 1; i <= 8;i++){
       foutComputation(tabl_n,v,vi,f_in);
       afficher(f_in);
     }
     cout << tabl_n[2][2] << "\n";
     cout << rhoComputation(f_in,2,3)  << "\n";
     cout << f_in[5][5][4] << "\n";
-    //cout << vi[4][1]  << "\n";
-    //cout << sizeof(y)  << "\n";
-    //cout << z  << "\n";
-    //cout << typeof(y)  << "\n";
+
     return 0;
 }
