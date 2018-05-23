@@ -18,8 +18,6 @@ typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
 typedef double vecteur[2];
 
-
-
 // !!!! A FAIRE !!!!!
 // Source continue
 // Affichage 2D stylé
@@ -126,29 +124,29 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
           vi_aux[1] = vi[k][1];
           double vj = vectors_prod(vi_aux,j_sum);
           if (k != 0){
-            f_out[i][j][k] = 0.2/(pow(n[i][j],2)* q) * rho + (1/v) * vj - f_in[i][j][k];//+ (1/v) * vj
+            f_out[i][j][k] = 0.002/(pow(n[i][j],2)* q) * rho + (1/v) * vj - f_in[i][j][k];//+ (1/v) * vj
           } else {
-            f_out[i][j][k] = 0.2*(pow(n[i][j],2) - 1)/(pow(n[i][j],2)) * rho - f_in[i][j][k];
+            f_out[i][j][k] = 0.002*(pow(n[i][j],2) - 1)/(pow(n[i][j],2)) * rho - f_in[i][j][k];
           }
         }
       } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
-        double Amplitude = 10;
+        double Amplitude = 0.1875*pow(10,-11);
         double phase = 0;
         double facteur = 0.04;       // facteru must be <= 1 to assure lambda/deltaX > 10
-        double frequenceXtemps = 5*facteur*iteration*v/q;      //la frequence fois le temps (représenté par deltaT * iteration)
+        double frequence = 4*pow(10,5);
+        double frequenceXtemps = frequence*iteration*0.25*pow(10,-6);
+        //double frequenceXtemps = 5*facteur*iteration*v/q;      //la frequence fois le temps (représenté par deltaT * iteration)
         for (int k = 0; k<=q ; k++){
           f_out[i][j][k] = Amplitude*sin(2*pi*frequenceXtemps);
           //cout << 2*pi*frequenceXtemps << "  ==>  " <<  f_out[i][j][k] << "       ";
         }
       } else {
         //reflecting surfaces represented by a negative refraction coefficient
-
         f_out[i][j][0] = -f_in[i][j][0];
         f_out[i][j][1] = -f_in[i][j][3];
         f_out[i][j][2] = -f_in[i][j][4];
         f_out[i][j][3] = -f_in[i][j][1];
         f_out[i][j][4] = -f_in[i][j][2];
-
       }
     }
   }
@@ -175,25 +173,17 @@ int main() {
     type_F f_in = {{{0}}};
     type_coeff_reffrac tabl_n;
     fill_matrix_n(tabl_n,4,2,2,7,1,1);
-    double deltaX = 6;
-    double deltaT = 3;
+    double deltaX = 75; //micromètre
+    double deltaT = 0.25*pow(10,-6); //dt =dx / vitesselumière(3*10⁸)
     double v = deltaX/deltaT;
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
 
-    //vector<std::array<int, 4> vectSource;
-    //int tmp[2] = {5,5};
-    //vectSource.push_back(tmp);
 
-    /*f_in[2][3][0] = 0;
-    f_in[2][3][1] = 0;
-    f_in[2][3][2] = 0;
-    f_in[2][3][3] = 0;
-    f_in[2][3][4] = 50;*/
-    for (int z=0; z < 10; z++){
+    for (int z=0; z < sizeX; z++){
       tabl_n[z][0] = 0.5;       // le point [5, 5] est une source
-      tabl_n[z][10] = -1;        // le point [5, 6] est une surface réfléchissante
+      //tabl_n[z][10] = -1;        // le point [5, 6] est une surface réfléchissante
     }
-    afficher(f_in);
+    //afficher(f_in);
     //foutComputation(tabl_n,v,vi,f_in);
     //cout << "ETAPE 1 : " << endl;
     //afficher(f_in);
@@ -202,9 +192,8 @@ int main() {
       cout << "\n";
       afficher(f_in);
     }
-    cout << tabl_n[2][2] << "\n";
-    cout << rhoComputation(f_in,2,3)  << "\n";
-    cout << f_in[5][5][4] << "\n";
-    //cout << pow(2,4) << pow(3,2);
+    //afficher(f_in);
+
+
     return 0;
 }
