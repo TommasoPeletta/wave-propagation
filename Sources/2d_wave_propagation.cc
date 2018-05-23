@@ -96,8 +96,6 @@ int rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule d
 
 
 void afficher(type_F matrix) { //Fonction pour afficher une matrice
-  //for (int k = 0; k < 5; k++){
-  int k = 0;
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
       double r = rhoComputation(matrix,x,y);
@@ -129,10 +127,8 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
           double vj = vectors_prod(vi_aux,j_sum);
           if (k != 0){
             f_out[i][j][k] = 0.2/(pow(n[i][j],2)* q) * rho + (1/v) * vj - f_in[i][j][k];//+ (1/v) * vj
-            //f_out[i][j][k] = 2/(pow(nn,2)* q) * rho - f_in[i][j][k];
           } else {
             f_out[i][j][k] = 0.2*(pow(n[i][j],2) - 1)/(pow(n[i][j],2)) * rho - f_in[i][j][k];
-            //f_out[i][j][k] = 2*(pow(nn,2) - 1)/(pow(nn,2)) * rho - f_in[i][j][k];
           }
         }
       } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
