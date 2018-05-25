@@ -11,8 +11,8 @@ using namespace std;
 //Pour lancer le code : g++ 2d_wave_propagation.cc -o Wave
 //                      ./Wave
 
-const int sizeX = 10;
-const int sizeY = 40;
+const int sizeX = 100;
+const int sizeY = 400;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -25,8 +25,6 @@ typedef double vecteur[2];
 type_F f_in = {{{0}}};
 
 // !!!! A FAIRE !!!!!
-// Source continue
-// Affichage 2D stylé
 
 
 double vectors_prod(double x[2],double y[2])
@@ -89,12 +87,12 @@ void jComputation(double res[2],double vi[q+1][2], double f_in[sizeX][sizeY][q+1
     }
 }
 
-int rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule du rho
-  int sum = 0;
+double rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule du rho
+  double sum = 0;
   for (int k = 0; k < q+1; k++){
     sum = sum + matrix[i][j][k];
   }
-  int rho = sum;
+  double rho = sum;
   return rho;
 }
 
@@ -145,7 +143,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
         for (int k = 0; k<=q ; k++){
           f_out[i][j][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
         }
-        cout << 2*pi*frequence*iteration*deltaT << "  ==>  " <<  f_out[i][j][1] << "       ";
+        //cout << 2*pi*frequence*iteration*deltaT << "  ==>  " <<  f_out[i][j][1] << "       ";
       } else {
         //reflecting surfaces represented by a negative refraction coefficient
         f_out[i][j][0] = -f_in[i][j][0];
@@ -156,7 +154,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
       }
     }
   }
-  cout << endl;
+  //cout << endl;
   vector_cpy(f_out, f_in);
 }
 
@@ -178,13 +176,16 @@ void display()
     glClear( GL_COLOR_BUFFER_BIT );
 
     unsigned int data[sizeX][sizeY][3];
-    for( size_t y = 0; y < sizeX; ++y )
+    for( size_t x = 0; x < sizeX; ++x )
     {
-        for( size_t x = 0; x < sizeY; ++x )
+        for( size_t y = 0; y < sizeY; ++y )
         {
-            data[y][x][0] = 0;
-            data[y][x][1] = 0;
-            data[y][x][2] = abs(rhoComputation(f_in,x,y));
+            data[x][y][0] = 0;
+            data[x][y][1] = 0;
+            data[x][y][2] = (int)((rhoComputation(f_in,x,y)/200) *  128 +128) * 256 *256 *256;//(((rhoComputation(f_in,x,y)/50000) * 128)+128)*256 * 256 * 256;
+            //data[y][x][2] = ( rand() % 256 ) * 256 * 256 * 256;
+          //double tmp = (rhoComputation(f_in,x,y));
+          cout << (int)((abs(rhoComputation(f_in,x,y))/500) *  256) << "   ";
         }
     }
 
@@ -194,7 +195,6 @@ void display()
 }
 
   int main( int argc, char **argv ) {
-    //f_in = {{{0}}};
     type_coeff_reffrac tabl_n;
     fill_matrix_n(tabl_n,4,2,2,7,1.3,1.3);
     //double v = q*3*pow(10,8)/2
@@ -208,24 +208,21 @@ void display()
       tabl_n[z][0] = 0.5;       // le point [5, 5] est une source
       //tabl_n[z][10] = -1;        // le point [5, 6] est une surface réfléchissante
     }
-    //afficher(f_in);
-    //foutComputation(tabl_n,v,vi,f_in);
-    //cout << "ETAPE 1 : " << endl;
-    afficher(f_in);
-    for (int i = 1; i <= 1000;i++){
+
+    for (int i = 1; i <= 500;i++){
       foutComputation(tabl_n,v,vi,f_in,i);
       //cout << "\n";
       //afficher(f_in);
     }
     cout << "\n";
-    afficher(f_in);
+    //afficher(f_in);
 
-    //glutInit( &argc, argv );
-    //glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );
-    //glutInitWindowSize( sizeX, sizeY );
-    //glutCreateWindow( "GLUT" );
-    //glutDisplayFunc( display );
-    //glutMainLoop();
+    glutInit( &argc, argv );
+    glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );
+    glutInitWindowSize( sizeX, sizeY );
+    glutCreateWindow( "GLUT" );
+    glutDisplayFunc( display );
+    glutMainLoop();
     return 0;
 
 }

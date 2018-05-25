@@ -86,12 +86,12 @@ void jComputation(double res[2],double vi[q+1][2], double f_in[sizeX][sizeY][q+1
     }
 }
 
-int rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule du rho
-  int sum = 0;
+double rhoComputation(double matrix[sizeX][sizeY][q+1], int i, int j) { //Calcule du rho
+  double sum = 0;
   for (int k = 0; k < q+1; k++){
     sum = sum + matrix[i][j][k];
   }
-  int rho = sum;
+  double rho = sum;
   return rho;
 }
 
@@ -142,7 +142,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
         for (int k = 0; k<=q ; k++){
           f_out[i][j][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
         }
-        cout << 2*pi*frequence*iteration*deltaT << "  ==>  " <<  f_out[i][j][1] << "       ";
+        //cout << 2*pi*frequence*iteration*deltaT << "  ==>  " <<  f_out[i][j][1] << "       ";
       } else {
         //reflecting surfaces represented by a negative refraction coefficient
         f_out[i][j][0] = -f_in[i][j][0];
@@ -153,7 +153,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
       }
     }
   }
-  cout << endl;
+  //cout << endl;
   vector_cpy(f_out, f_in);
 }
 
@@ -188,10 +188,7 @@ int main() {
       tabl_n[z][0] = 0.5;       // le point [5, 5] est une source
       //tabl_n[z][10] = -1;        // le point [5, 6] est une surface réfléchissante
     }
-    //afficher(f_in);
-    //foutComputation(tabl_n,v,vi,f_in);
-    //cout << "ETAPE 1 : " << endl;
-    afficher(f_in);
+
     for (int i = 1; i <= 1000;i++){
       foutComputation(tabl_n,v,vi,f_in,i);
       //cout << "\n";
