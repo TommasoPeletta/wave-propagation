@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <GL/glut.h>
+#include <cstdlib>
 
 using std::vector;
 using namespace std;
@@ -20,6 +22,7 @@ const double pi = 3.14159265358979323846;
 typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
 typedef double vecteur[2];
+type_F f_in = {{{0}}};
 
 // !!!! A FAIRE !!!!!
 // Source continue
@@ -169,12 +172,29 @@ void fill_matrix_n(type_coeff_reffrac matrix, int startY, int width,int startX, 
   }
 }
 
-void source(double ampl, double frequence){
+void display()
+{
+    glClearColor( 0, 0, 0, 1 );
+    glClear( GL_COLOR_BUFFER_BIT );
 
+    unsigned int data[sizeX][sizeY][3];
+    for( size_t y = 0; y < sizeX; ++y )
+    {
+        for( size_t x = 0; x < sizeY; ++x )
+        {
+            data[y][x][0] = 0;
+            data[y][x][1] = 0;
+            data[y][x][2] = abs(rhoComputation(f_in,x,y));
+        }
+    }
+
+    glDrawPixels( sizeX, sizeY, GL_RGB, GL_UNSIGNED_INT, data );
+
+    glutSwapBuffers();
 }
 
-int main() {
-    type_F f_in = {{{0}}};
+  int main( int argc, char **argv ) {
+    //f_in = {{{0}}};
     type_coeff_reffrac tabl_n;
     fill_matrix_n(tabl_n,4,2,2,7,1.3,1.3);
     //double v = q*3*pow(10,8)/2
@@ -200,6 +220,12 @@ int main() {
     cout << "\n";
     afficher(f_in);
 
-
+    //glutInit( &argc, argv );
+    //glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );
+    //glutInitWindowSize( sizeX, sizeY );
+    //glutCreateWindow( "GLUT" );
+    //glutDisplayFunc( display );
+    //glutMainLoop();
     return 0;
+
 }
