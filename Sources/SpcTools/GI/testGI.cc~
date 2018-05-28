@@ -1,0 +1,148 @@
+#include "GraphicsInterface.hh"
+#include "iostream.h"
+#include "Matrix.hh"
+#include "Polygon.hh"
+#include "Point.hh"
+#include "Line.hh"
+
+int main()
+{
+
+  Point<float> aPoint(0.2,0.4);
+  
+  cout << aPoint << endl;
+
+  Polygon p;
+
+  p.addValue(Point<int> (10,10));
+  p.addValue(Point<int> (10,30));
+  p.addValue(Point<int> (30,30));
+  p.addValue(Point<int> (30,10));
+
+  if (p.surround(Point<int> (0,0)) == true)
+    cout << "(0,0) is surrounded a 20x20 square centered in (10,10)" 
+	 << endl;
+
+  if (p.surround(Point<int> (20,10)) == true)
+    cout << "(20,10) is surrounded a 20x20 square centered in (10,10)" 
+	 << endl;
+
+  if (p.surround(Point<int> (21,10)) == true)
+    cout << "(21,10) is surrounded a 20x20 square centered in (10,10)" 
+	 << endl;
+
+  if (p.surround(Point<int> (10,10)) == true)
+    cout << "(10,10) is surrounded a 20x20 square centered in (10,10)" 
+	 << endl;
+
+  if (p.surround(Point<int> (20,20)) == true)
+    cout << "(20,20) is surrounded a 20x20 square centered in (10,10)"
+	 << endl;
+
+  Line<int> l1(Point<int>(1,1),Point<int>(10,10));
+  Line<int> l2(Point<int>(10,1),Point<int>(1,10));
+
+  if (l1.intersectWith(l2) == true) 
+    cout << "l1 intersect l2" << endl;
+   
+  GraphicsInterface window1,window2,window3;
+
+
+  Matrix<unsigned char> matrixDiscrete(256,256);
+
+  matrixDiscrete=GI_red;
+
+  window1.open(256,256,Point<int>(1,0),
+	       discreteColor,String("Discrete colors"));
+
+  window2.open(256,256,Point<int>(300,0),continuousColor);
+  window3.open(256,256,Point<int>(600,0),continuousGray);
+
+  window1.drawMatrix(matrixDiscrete);
+
+  window1.setLineStyle(dash);
+  window1.drawLine(Point<int>(0,0),Point<int>(100,100));
+  window1.setLineStyle(dot);
+  window1.drawLine(Point<int>(100,0),Point<int>(0,100));
+  window1.setLineStyle(mix);
+  window1.drawLine(Point<int>(50,0),Point<int>(50,100));
+
+  window1.setLineStyle(continuous);
+  window1.setDrawingColor(GI_green);
+  window1.drawLine(Point<int>(100,200),Point<int>(200,200),doubleArrow);
+
+  window1.setDrawingColor(GI_black);
+  window1.setLineWidth(thick);
+  window1.drawLine(Point<int>(200,100),Point<int>(200,200));
+
+  window1.setLineWidth(Thick);
+  window1.drawCircle(Point<int>(50,180),30);
+
+  window1.setLineWidth(thin);
+  window1.setFillColor(GI_yellow);
+  window1.drawArc(Point<int>(90,240),30,10.0,90.0,filled);
+
+  window1.drawEllipse(Point<int>(200,70),50,20);
+
+  String demo("Demonstration");
+  window1.drawString(Point<int>(150,20),demo);
+  int width1=window1.widthOf(demo);
+
+  window1.setCharSize(tiny);
+  int width2=window1.widthOf(demo);
+  window1.drawString(Point<int>(150+((int) (width1-width2)/2),40),demo);
+
+  window1.setFillColor(GI_blue);
+  window1.drawBox(Point<int>(100,140),50,70,filled);
+
+  window1.drawPolygon(p);
+
+  Matrix<unsigned char> matrix1(256,256);
+  Matrix<unsigned char> matrix2(256,256);
+
+  int i;
+  for (i=0;i<256;i++) matrix1.setLine(i,i);
+
+  matrix2=0;
+  matrix2.setRow(128,128);
+  matrix2.setLine(128,128);
+
+  window2.drawMatrix(matrix1);
+  window3.drawMatrix(matrix2);
+
+  String s("Palette");
+  window2.setCharSize(normal);
+  window2.drawString(Point<int>(128-window2.widthOf(s)/2,134),s);
+
+  window1.printInto(String("window1"));
+  window2.printInto(String("window2"));
+  window3.printInto(String("window3"));
+
+  //while(1);
+
+  GraphicsInterface window4;
+
+  window4.open(400,300,Point<int>(300,300),discreteColor);
+
+  String s1("This is an example");
+  window4.drawString(Point<int>(150-window2.widthOf(s1)/2,150),s1);
+  window4.drawCircle(Point<int>(150,150),80);
+
+  cout << "Enter a value in order to do the copy" << endl;
+  cin >> i;
+
+  Matrix<unsigned char> copy(400,300);
+  copy=window4.getMatrix();
+
+  window4.drawMatrix(copy);
+
+  cout << "Enter a value to exit" << endl;
+  cin >> i;
+
+  window1.close();
+  window2.close();
+  window3.close();
+  window4.close();
+
+  return 0;
+}

@@ -1,0 +1,230 @@
+#ifndef MATRIX_HH
+#define MATRIX_HH
+
+//=======================================================
+//
+// = LIBRARY
+//     Misc
+//
+// = FILENAME
+//     Matrix.hh
+//
+// = AUTHOR(S)
+//     Alexandre Dupuis
+//
+// = VERSION
+//     $Revision: 1.1 $
+//
+// = DATE RELEASED
+//     $Date: 2000/05/30 15:03:58 $
+//
+// = COPYRIGHT
+//     University of Geneva, Switzerland
+//
+//=======================================================
+
+#include "conditions.hh"
+#include <cstdlib>
+
+template<class Type>
+class Matrix
+//=======================================================
+//
+// = DESCRIPTION
+//
+//   The class <{Matrix}> describes a n x m matrix composed of any
+//   type of variable. Basic operations are defined on it.
+//
+//=======================================================
+{
+public:
+
+  //=======================================================
+  // = CONSTRUCTORS
+  //=======================================================
+
+  Matrix();
+  // Default constructor.
+
+  Matrix(const Matrix<Type> &matrix);
+  // Copy constructor.
+
+  Matrix(const int nbLine, const int nbRow);
+  // Constructs a matrix with a specified constructor.
+
+  //=======================================================
+  // = DESTRUCTOR
+  //=======================================================
+
+  ~Matrix();
+  // Default destructor.
+
+  //=======================================================
+  // = MUTATOR
+  //=======================================================
+
+  void setDimension(const int nbLine, const int nbRow);
+  // Sets the dimension of the matrix.
+
+  //=======================================================
+  // = ACCESSORS
+  //=======================================================
+
+  void set(const int line, const int row, const Type value);
+  // Sets the line <{line}> and the row <{row}> to the value
+  // <{value}>.
+
+  Type get(const int line, const int row) const;
+  // Gets the value of the line <{line}> and the row <{row}>.
+
+  void setLine(const int line, const Type value);
+  // Sets the line <{line}> to the value <{value}>.
+
+  void setRow(const int row, const Type value);
+  // Sets the row <{row}> to the value <{value}>.
+  
+  int getNbLine() const;
+  // Gets the number of lines.
+
+  int getNbRow() const;
+  // Gets the number of rows.
+
+  Type* getLine(const int line) const;
+  // Gets the line <{line}> of the matrix.
+
+  //=======================================================
+  // = OPERATORS
+  //=======================================================
+
+  Matrix<Type>& operator=(const Matrix<Type> &matrix);
+  // Assignement operator.
+
+  Matrix<Type>& operator=(const Type value);  
+  // A=b
+
+  Matrix<Type>& operator*=(const Type value);
+  // A=A*b
+
+  Matrix<Type> operator*(const Type value);
+  // A*b
+
+  Matrix<Type>& operator-=(const Type value);
+  // A=A-b
+
+  Matrix<Type> operator-(const Type value);
+  // A-b
+
+  Matrix<Type>& operator+=(const Type value);
+  // A=A+b
+
+  Matrix<Type> operator+(const Type value);
+  // A+b
+
+  Matrix<Type> operator*(const Matrix<Type> &matrix);
+  // A*B
+
+  Matrix<Type> operator+(const Matrix<Type> &matrix);
+  // A+B
+
+  Matrix<Type> operator-(const Matrix<Type> &matrix);
+  // A-B
+
+  void print();
+  // Prints the matrix.
+
+  //=======================================================
+  // PRIVATE METHODS AND ATTRIBUTES
+  //=======================================================
+
+private:
+
+  Type **matrix_;
+  // The matrix.
+
+  int nbLine_;
+  // Stores the number of line.
+
+  int nbRow_;
+  // Stores the number of row.
+  
+};
+
+//============================================================
+// INLINE METHODS
+//============================================================
+
+//=======================================================
+// ACCESSORS
+//=======================================================
+
+template<class Type> 
+inline void Matrix<Type>::set(const int line, const int row, const Type value)
+{
+#ifdef ASSERT_REQUIRE
+  if ((line < 0) || (line >= nbLine_)) {
+    cout << "failed assertion `((line >= 0) && (line < nbLine_))' line=" 
+	 << line << ", nbLine_=" << nbLine_ << endl;
+    exit(0);
+  }
+#endif
+  require ("The matrix has been allocated", (matrix_ != 0));
+  //require ("0 <= line < nbLine", ((line >= 0) && (line < nbLine_)));
+  require ("0 <= row < nbRow", ((row >= 0) && (row < nbRow_)));
+
+  matrix_[line][row]=value;
+}
+
+// ============================================================
+template<class Type> 
+inline Type Matrix<Type>::get(const int line, const int row) const 
+{
+  require ("The matrix has been allocated", (matrix_ != 0));
+  require ("0 <= line < nbLine", ((line >= 0) && (line < nbLine_)));
+  require ("0 <= row < nbRow", ((row >= 0) && (row < nbRow_)));
+
+  return matrix_[line][row];
+}
+
+// ============================================================
+template<class Type> 
+inline int Matrix<Type>::getNbLine() const
+{
+  require ("The matrix has been allocated", (matrix_ != 0));
+
+  return nbLine_;
+}
+  
+// ============================================================
+template<class Type> 
+inline int Matrix<Type>::getNbRow() const
+{
+  require ("The matrix has been allocated", (matrix_ != 0));
+
+  return nbRow_;
+}
+
+// ============================================================
+template<class Type> 
+inline Type* Matrix<Type>::getLine(const int line) const
+{
+  require ("The matrix has been allocated", (matrix_ != 0));
+
+  return matrix_[line];
+}
+
+//#ifdef __GNUC__
+
+
+#if defined(SP)
+
+#define MATRIX_INLINE inline
+#include "Matrix.cc"
+
+#else
+
+#define MATRIX_INLINE
+#include "Matrix.cc"
+
+#endif
+
+#endif

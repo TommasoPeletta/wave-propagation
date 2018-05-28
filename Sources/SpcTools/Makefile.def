@@ -1,0 +1,19 @@
+CC	=	g++ -O3
+
+MAKELIB =	ar -r
+
+LIBDIR	=	..
+
+INCDIR  =       ..
+
+OPTIONS	=	-c -w -g
+
+CFLAGS	=	$(OPTIONS) -DPOULE -DASSERT_REQUIRE -DPARALLEL 
+
+INCS    =	-I./ \
+		-I$(INCDIR)/Include \
+		-I/usr/X11R6/include \
+
+LFLAGS	=	-L./ \
+		-L$(LIBDIR)/Lib/ \
+		-L/usr/X11R6/lib \

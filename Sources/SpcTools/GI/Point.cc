@@ -1,0 +1,118 @@
+//=======================================================
+//
+// = LIBRARY
+//     GI
+//
+// = FILENAME
+//     Point.cc
+//
+// = AUTHOR(S)
+//     Alexandre Dupuis
+//
+// = VERSION
+//     $Revision: 1.1 $
+//
+// = DATE RELEASED
+//     $Date: 2000/05/30 15:50:16 $
+//
+// = COPYRIGHT
+//     University of Geneva, Switzerland
+//
+//=======================================================
+
+#include "Point.hh"
+#include <iostream>
+#include <math.h>
+
+using namespace std;
+
+//=======================================================
+// = CONSTRUCTOR
+//=======================================================
+
+template<class PointType>
+POINT_INLINE Point<PointType>::Point() : x_(0),y_(0),z_(0)
+{
+
+}
+
+// ============================================================
+template<class PointType>
+POINT_INLINE Point<PointType>::Point(const PointType x, const PointType y, const PointType z) : 
+x_(x), y_(y), z_(z)
+{
+
+}
+
+// ============================================================
+template<class PointType>
+POINT_INLINE Point<PointType>::Point(const Point<PointType> &aPoint) : 
+x_(aPoint.getX()), y_(aPoint.getY()), z_(aPoint.getZ())
+{
+
+}
+
+//=======================================================
+// = DESTRUCTOR
+//=======================================================
+
+template<class PointType>
+POINT_INLINE Point<PointType>::~Point()
+{
+
+}
+
+//=======================================================
+// = OPERATORS
+//=======================================================
+
+template<class PointType>
+POINT_INLINE Point<PointType> 
+Point<PointType>::operator*(const PointType value)
+{
+  Point<PointType> result;
+
+  result.setX(x_*value);
+  result.setY(y_*value);
+  result.setZ(z_*value);
+
+  return result;
+}
+
+// ============================================================
+template<class PointType>
+POINT_INLINE Point<PointType> 
+Point<PointType>::operator+(const PointType value)
+{
+  Point<PointType> result;
+
+  result.setX(x_+value);
+  result.setY(y_+value);
+  result.setY(z_+value);
+
+  return result;
+}
+
+// ============================================================
+template<class PointType>
+POINT_INLINE Point<PointType> 
+Point<PointType>::operator-(const PointType value)
+{
+  Point<PointType> result;
+
+  result.setX(x_-value);
+  result.setY(y_-value);
+  result.setY(z_-value);
+
+  return result;
+}
+
+// ============================================================
+template<class PointType>
+POINT_INLINE ostream& operator<<(ostream &os, const Point<PointType>& p)
+{
+    os << "(" << p.getX() << ";" << p.getY() << ";" << p.getZ() << ")";
+    
+  return os;
+}
+

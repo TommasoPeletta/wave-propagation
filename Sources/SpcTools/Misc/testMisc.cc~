@@ -1,0 +1,135 @@
+#include "String.hh"
+#include "Vector.hh"
+#include "Matrix.hh"
+#include "Random.hh"
+#include "RandomS.hh"
+#include "IntPow.hh"
+#include "List.hh"
+
+#include <fstream.h>
+#include <iostream.h>
+
+int main()
+{
+  float f1=123.4567;
+  float f2=-0.0000012;
+  float f3=-123456789.0;
+  float f4=0.002;
+
+  String s1(123),s2(f1),s3(f2),s4(f3),s5(f4);
+
+  cout << "** "  << s1.get() << " ** " << s2.get() 
+       << " ** " << s3.get() << " ** " << s4.get() 
+       << " ** " << s5.get() << endl;
+
+  Matrix<int> m1(5,5),m2(5,5),m3(5,5);
+
+  m1=2;
+  m2=3;
+  m3=4;
+
+  m1=m1-(m2*m3*m1-m2*m3*m1+m1);
+
+  m1.print();
+
+  Matrix<char> m4(4,4);
+  m4.setDimension(4,4);
+
+  m4=11;
+  m4*=6;
+
+  m4.print();
+
+  Random rand;
+
+  cout << "A random value: " << rand.get() << endl;
+
+  IntPow pow(2,20);
+
+  cout << "2**5 = " << pow.get(5) << endl;
+
+  String s6("2**5 = ");
+  s6.concat(pow.get(5));
+  s6.concat(".");
+
+  cout << s6 << endl;
+
+  String s7("Test of the occurence number method");
+  String s8("th");
+  
+  cout << "The string '" << s8 << "' appears " << s7.nbOccurences(s8)
+       << " times in the string '" << s7 << "'." << endl;
+
+  String s9=s7.toUpperCase();
+  String s10=s9.toLowerCase();
+
+  cout << s9 << " -- " << s10 << endl;
+
+  RandomS rands;
+
+  cout << "A random value (static): " << rands.get() << endl;
+
+
+  Vector<float> v1(10),v2;
+
+  v2.setSize(10);
+
+  v1=1.0;
+  v2=2.0;
+
+  float f=2.0;
+
+  v2=v2-v1*f;
+
+  cout << "A null vector:" << endl;
+  v2.print();
+
+
+  List<String> list;
+
+  list.addValue(String("Item 1"));
+  list.addValue(String("Item 2"));
+  list.addValue(String("Item 3"));
+  list.addValue(String("Item 4"));
+
+  list.initTraversal();
+
+//   list.delCurrentValue();
+// 
+//   list.initTraversal();
+// 
+//   do {
+//     cout << list.currentValue() << " ";
+//   } while (list.isTraversalLastValue() == false);
+//   cout << endl;
+// 
+//   
+//   list.initTraversal();
+
+//   do {
+//     if (list.currentValue() == String("Item 3")) 
+//	 list.delCurrentValue();
+//   } while (list.isTraversalLastValue() == false);
+
+  list.initTraversal();
+  do {
+    cout << list.currentValue() << " ";
+  } while (list.isTraversalLastValue() == false);
+  cout << endl;
+
+
+  list.delCurrentValue();
+  list.delCurrentValue();
+
+  cout << "Size of the list = " << list.getSize() << endl;
+
+  List<String> l;
+
+  l=list;
+
+  cout << "Size of the list = " << l.getSize() << endl;
+  
+
+  return 0;
+
+}

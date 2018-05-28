@@ -1,0 +1,353 @@
+\documentclass[12pt,a4paper]{article}
+
+\title{SpcTools: A simple visualization library for C++ programs}
+\author{SPC group, CUI, University of Geneva }
+\date{January 2003}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This library, called SpcTools, contains some C++ classes that are
+useful to visualize images and to draw simple graphs by opening a
+drawing window on the computer screen and writing pixels or lines in
+it. It is a subset of the PELABS library developed  by Alexandre Dupuis.
+
+The classes of the library use the X11 library and can be used from Unix and Linux
+systems.  The functionality is basic but should be sufficient for
+simple applications.  As a limitation, note that the drawing window
+is not automatically refreshed if another window is dragged over it.
+Also, at the current stage, the axis in plot are not labeled.
+
+\section{Images and plots}
+
+\subsection{The drawing window}
+
+In order to visualize a image or to draw a graph, the first step is to
+open a window on the computer screen.
+
+Using the SpcTool library, such a drawing window (called here {\tt myWindow}) is
+declared in a C++ program, as
+\begin{verbatim}
+    GraphicsInterface myWindow;
+\end{verbatim}
+It requires the header file
+\begin{verbatim}    
+    #include "GraphicsInterface.hh"
+\end{verbatim}
+defined in the library.
+
+To make the drawing window actually appear on the screen, use the instruction 
+\begin{verbatim}
+     myWindow.open(nz,nx);
+\end{verbatim}
+where {\tt nz} and {\tt nx} are integers variables representing, in pixels,  the vertical and horizontal
+size of the drawing window. For instance
+\begin{verbatim}
+    myWindow.open(100,200);
+\end{verbatim}
+opens a 200-pixel large window and 100-pixel high. 
+
+Many windows can be open simultaneously, with different names (e.g. {\tt GraphicInterface window1, window2;} ). 
+When a drawing window is no longer needed, it can be closed with
+\begin{verbatim}
+    myWindow.close();
+\end{verbatim}
+
+\subsection{How to display an image}
+
+An image can be drawn on a drawing window. To this end, the image must
+be stored as  a {\tt Matrix} object declared as follows:
+\begin{verbatim}
+   Matrix<unsigned char> image;
+\end{verbatim}
+Its size must match that of the drawing window:
+\begin{verbatim}
+   image.setDimension(nz,nx);
+\end{verbatim}
+Each pixel of the image is coded as a {\tt char} type. The content of
+pixel {\tt (i,j)} of the image is set to a chosen value (for instance the value of 2) in the following way:
+\begin{verbatim}
+      image.set(j,i,(unsigned char) (2)); // 2 produces a red pixel
+\end{verbatim}
+There are 256 possible colors, ranging from 0 to 255. The value 0 is white, 1 is black,
+2 is red and, then, there is continuous palette. Run the file {\tt TestGI} in the {\tt
+SpcTool/GI} directory to see the color palette.
+
+In order to display {\tt image} on the drawing window, use the {\tt DrawMatrix} method:
+\begin{verbatim}
+  mywindow.drawMatrix(image);
+\end{verbatim}
+An example of application is given in section~\ref{sect:parity}. The program {\tt parity.cc}
+implements a cellular automata and displays its evolution after each time step.
+
+\subsection{Saving an image as a file}
+It is possible to save on the disk the contents of a drawing window as a ppm file.
+The format ppm is a simple format to save pixel images. It can then be converted to
+other formats using programs such as {\tt convert file.ppm file.ps}, or {\tt display}, etc.
+
+For instance, if {\tt image} contains the image and {\tt myWindow} is a drawing window,
+the instruction  {\tt myWindow.printInto(``myImage.ppm'',image);} will create the
+file {\tt myImage.ppm} and print the {\tt image } matrix in it.
+
+\subsection{Simple plot}
+
+The SpcTools library offers some possibilities to draw lines or graphs on a plotting window.
+The following header files are then needed:
+\begin{verbatim}
+#include "GraphicsInterface.hh"
+#include "Point.hh"
+#include "PlotGI.hh"
+\end{verbatim}
+
+For instance, a plot window (called here {\tt plot1}) is declared and opened with
+\begin{verbatim}
+  PlotGI plot1(256,256,0.,1.,0.,1.);
+\end{verbatim}
+where the first two values {\tt nx}, {\tt ny} are the window size in pixels and the
+last four values {\tt xmin}, {\tt xmax}, {\tt ymin} and {\tt ymax} are {\tt float} that
+indicate the desired user coordinates {\tt (xmin,ymin)} of the lower left corner and
+{\tt (xmax,ymax)} of the upper right corner. These coordinates can be changed at any time
+using the method {\tt setXY}. For instance, 
+\begin{verbatim}
+     plot1.setXY(0.,64.,-1.,1.);} 
+\end{verbatim}
+defines a plot region with {\tt x} ranging between 0 and 64 and
+{\tt y} between -1 and 1.
+
+To draw a straight line from {\tt (x0,y0)} to {\tt (x1,y1)} on the window {\tt plot1}, 
+proceed as follows:
+\begin{verbatim}
+  plot1.moveto(x0,y0);
+  plot1.lineto(x1,y1,mycolor1);
+\end{verbatim}
+where {\tt mycolor1} specifies the color of the line. Colors must be declared as
+\begin{verbatim}
+  Color mycolor1=GI_green, mycolor2=GI_blue, mycolor3=GI_red;
+\end{verbatim}
+In order to add an extra segment joining {\tt (x2,y2)} to the current
+line {\tt (x0,y0)} to {\tt (x1,y1)} simply use again the {\tt lineto} method:
+\begin{verbatim}
+  plot1.lineto(x2,y2,mycolor1);
+\end{verbatim}
+The above  {\tt x} and {\tt y} variables must be {\tt float} and in the range specified by
+{\tt setXY} method. Otherwise, an error will occur.
+
+In many cases, it is desired to plot a graph defined through its {\tt x[i]} and {\tt y[i]}
+coordinates, where {\tt i} ranges from 0 to {\tt size-1} and {\tt x} and {\tt y} are arrays.
+Such a graph can be drawn directly using the {\tt plotArray} method. For instance
+\begin{verbatim}
+  int size=64
+  float* x=new float[size];
+  float* y=new float[size];
+  for(int i=0;i<size;i++){x[i]=i; y[i]=cos(.2*(float) i); }
+  plot1.setXY(0.,64.,-1.,1.);
+  plot1.plotArray(x,y,size,mycolor2);
+\end{verbatim}
+In some application, it is useful to visualize a graph which changes
+during the execution of the program. This can be done using the {\tt
+startPlotArray} and {\tt updatePlotArray} methods. An example is given below,
+where, at each iteration, the amplitude of the {\tt y[i]} decreases:
+\begin{verbatim}
+  plot1.startPlotArray(x,y,size,mycolor3);
+
+  float scale=1.;
+  for(int iter=0;iter<200;iter++){
+    scale*=.995;
+    for(int i=0;i<size;i++){x[i]=i; y[i]=scale*cos(.2*(float) i);}
+    plot1.updatePlotArray(x,y);
+  }
+\end{verbatim}
+To close a plot window, use the method {\tt close}. In our example:
+\begin{verbatim}
+   plot1.close();
+\end{verbatim}
+
+A C++ example program illustrating the above concepts is available in
+the SpcTools directory {\tt SpcTools/Example/plotExple.cc}.
+
+\section{Compilation and execution}\label{sect:compil}
+
+If you are connected to a linux PC in the CUI network, the library is already installed.
+If not, first refer to section~\ref{sect:downloading} before reading the present section.
+
+The SpcTools library is installed in the {\tt /user/connex/parallel/SpcTools/Lib} directory.
+It is made of two distinct components, the {\tt Misc} and {\tt GI} libraries.
+
+The correct path must be included in the compilation line in order to instruct {\tt g++} where
+to look for these libraries and the corresponding header files. For instance, to compile
+the program given in section~\ref{sect:parity}, type, in on the same line,
+\begin{verbatim}
+g++ -O3  -o parity  -I/user/connex/parallel/SpcTools/Include 
+   parity.cc   -L/user/connex/parallel/SpcTools/Lib -L/usr/X11R6/lib 
+                  -lMisc -lGI -lX11
+\end{verbatim}
+then execute with 
+\begin{verbatim} 
+  parity 200 200 100
+\end{verbatim}
+where the arguments 200 200 define the
+array size and 100 the number of iterations. Note that it may be
+necessary to initialize the environment variable {\tt DISPLAY}. If this is needed, type 
+\begin{verbatim}
+         setenv DISPLAY :0
+\end{verbatim}
+
+In order to avoid typing a long line as shown above to compile the
+program, it is possible to use a {\tt Makefile}. A {\tt Makefile} is a
+file containing instructions on how to build an application. It is a
+very useful tool is Linux/Unix environment.  
+
+As an example to see how use it, copy the
+file
+\begin{verbatim}
+  /user/connex/parallel/SpcTools/Example/Makefile
+\end{verbatim}
+in your directory, as well as the {\tt parity.cc} file, which is in
+the same directory.
+
+In our example, the {\tt Makefile} allows us to compile the {\tt parity.cc} program simply by typing:
+\begin{verbatim}
+    make parity
+\end{verbatim}
+
+As a second example, also copy the file {\tt plotExple.cc} from the same
+directory, and type 
+\begin{verbatim}
+    make plotExple
+\end{verbatim}
+You will  get an example for drawing a graph. To execute it,
+type {\tt plotExple}.
+
+The {\tt Makefile} file can be edited so that new programs can be
+compiled (there can be only one {\tt Makefile} per directory). Follow
+the structure of the example {\tt Makefile} to add your own
+compilation lines. Refer to standard Linux documentation to know more about {\tt Makefile}.
+
+\section{Installing the library}~\label{sect:downloading}
+
+If you want to use the SpcTools library on a Linux PC or Unix station
+on which it is not installed, download it from 
+\begin{verbatim}
+http://cui.unige.ch/~chopard/FTP/SpcTools/spcTools.tar.gz
+\end{verbatim} 
+to your home directory.
+
+Uncompress it with {\tt gunzip spcTools.tar.gz} and ``untar'' it with
+{\tt tar -xvf scpTools.tar}. This will produce a directory {\tt SpcTools} containing
+all the source files. In order to build the library, change directory to {\tt SpcTools}
+and type {\tt make}. 
+
+If you are lucky, this should be enough. The success of the
+installation can be tested by running the test programs {\tt
+SpcTools/GI/TestGI} and {\tt SpcTools/Misc/TestMisc}.
+To remove the library, go the your home directory and type {\tt rm -r SpcTools}
+
+\section{Example}\label{sect:parity}
+
+The following program, {\tt parity.cc}, implements a cellular automata
+with the so-called parity rule and displays its evolution after each
+time step. 
+
+In this example, each cell in the 2D array can be either 0 or 1. The parity
+rule amounts to replacing each cell state by the sum modulo 2 of its
+four neighbors.
+
+The program reads the array size on the command line, as well as the
+desired number of iterations.  The header files "GraphicsInterface.hh"
+and "Random.hh" are defined in the SpcTools library. See
+section~\ref{sect:compil} to see how to compile and execute the following program.
+
+\begin{verbatim}
+#include <fstream.h> 
+#include <stdlib.h>
+#include "GraphicsInterface.hh"
+#include "Random.hh"
+
+// for simplicity, we use global variables. No need to
+// pass the parameters to the functions
+
+Random rng;
+int nx, nz, nbIter;
+int** ac;
+int** nac;
+
+GraphicsInterface window;
+Matrix<unsigned char> image;
+
+void drawImage(int** a)  // this is a function to display a 2D array a
+{
+  int i,j;
+  unsigned char pix;   
+
+  for (i=0;i<nx;i++) {
+    for (j=0;j<nz;j++){
+      image.set(j,i,(unsigned char) (a[i][j]+1)); 
+         // the +1 is to have red/black colors
+    }    
+  }
+  window.drawMatrix(image);
+}
+
+int main(int argc, char ** argv)
+{
+  if (argc != 4) {
+    cout << "Usage: parity <sizex> <sizey>  <nbIter>" << endl;
+    return 1;
+  }
+
+  nx=atoi(argv[1]);
+  nz=atoi(argv[2]);
+  nbIter=atoi(argv[3]);
+
+  rng.init();
+  window.open(nz,nx);
+  image.setDimension(nz,nx);
+
+  // allocation memory for the ac
+  ac=new int*[nx];
+  for(int i=0;i<nx;i++)ac[i]=new int[nz];
+  nac=new int*[nx];
+  for(int i=0;i<nx;i++)nac[i]=new int[nz];
+
+  // initial condition: zero everywhere except in the center----------
+  for(int i=0;i<nx;i++)
+    for(int j=0;j<nz;j++)ac[i][j]=0;
+
+  // put some random sites with values 1
+  for(int i=nx/2-3;i<nx/2+3;i++)
+    for(int j=nz/2-3;j<nz/2+3;j++)ac[i][j]=(int) (rng.get()+.5);
+  //---------------------------------------------
+
+  cout << "size = " << nx <<"  " << nz << endl;
+  cout << "nbIter = " << nbIter << endl;
+
+  //-------Iterations of the Cellular Automata --------------
+  for (int iter=0;iter<nbIter;iter++) {
+
+    // implement the evolution rule (Parity rule, here)
+    for(int i=0;i<nx;i++){
+      for (int j=0;j<nz;j++){
+		nac[i][j]=(ac[(i+nx-1)%nx][j] + ac[(i+nx+1)%nx][j] +
+	        ac[i][(j+nz-1)%nz] + ac[i][(j+nz+1)%nz]
+	                  )%2;
+      }
+    }
+
+    // copy new values in old ones
+    for(int i=0;i<nx;i++)
+      for(int j=0;j<nz;j++)ac[i][j]=nac[i][j];
+
+    // display the new configuration
+    drawImage(ac);
+  }
+
+
+  window.close();
+
+  return 0;
+}
+\end{verbatim}
+
+\end{document}

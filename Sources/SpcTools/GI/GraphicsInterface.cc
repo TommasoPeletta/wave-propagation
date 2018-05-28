@@ -1,0 +1,1005 @@
+//=======================================================
+//
+// = LIBRARY
+//     GI
+//
+// = FILENAME
+//     GraphicsInterface.cc
+//
+// = AUTHOR(S)
+//     Alexandre Dupuis
+//
+// = VERSION
+//     $Revision: 1.2 $
+//
+// = DATE RELEASED
+//     $Date: 2000/06/15 09:13:23 $
+//
+// = COPYRIGHT
+//     University of Geneva, Switzerland.
+//
+//=======================================================
+
+#include "GraphicsInterface.hh"
+#include "conditions.hh"
+
+#include <iostream>
+#include <fstream>
+#include <stdlib.h>
+#include <math.h>
+#include <sstream>
+
+//=======================================================
+// = CONSTRUCTORS
+//=======================================================
+
+GraphicsInterface::GraphicsInterface()
+{
+  isOpen_=false;
+
+  dotDefinition_=new char[2];
+  dotDefinition_[0]=2;
+  dotDefinition_[1]=3;
+
+  dashDefinition_=new char[2];
+  dashDefinition_[0]=6;
+  dashDefinition_[1]=3;
+
+  mixDefinition_=new char[4];
+  mixDefinition_[0]=9;
+  mixDefinition_[1]=3;
+  mixDefinition_[2]=3;
+  mixDefinition_[3]=3;
+
+}
+
+//=======================================================
+// = DESTRUCTOR
+//=======================================================
+
+GraphicsInterface::~GraphicsInterface()
+{
+  delete [] dotDefinition_;
+  delete [] dashDefinition_;
+  delete [] mixDefinition_;
+}
+
+//=======================================================
+// = ACCESSORS
+//=======================================================
+
+void GraphicsInterface::setDrawingColor(const Color color)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  drawingColor_=color;
+    
+  XSetForeground(display_,gc_,
+		 color_[drawingColor_].pixel);
+}
+
+//=======================================================
+void GraphicsInterface::setLineWidth(const LineWidth lineWidth)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  lineWidth_=lineWidth;
+    
+  XSetLineAttributes(display_,gc_,
+		     lineWidth_,LineSolid,CapRound,JoinMiter);
+}
+
+//=======================================================
+void GraphicsInterface::setLineStyle(const LineStyle lineStyle)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  lineStyle_=lineStyle;
+
+  XSetLineAttributes(display_,gc_,lineWidth_,
+                     LineOnOffDash,CapRound,JoinMiter);
+  switch(lineStyle) {
+    case continuous:
+      XSetLineAttributes(display_,gc_,lineWidth_,
+                         LineSolid,CapRound,JoinMiter);
+      break;
+    case dot:
+      XSetDashes(display_,gc_,0,dotDefinition_,2);
+      break;
+    case dash:
+      XSetDashes(display_,gc_,0,dashDefinition_,2);
+      break;
+    case mix:
+      XSetDashes(display_,gc_,0,mixDefinition_,4);
+      break;
+  }
+}  
+
+// ============================================================
+
+/**
+* Added by Mohamed Ben Belgacem
+* date: 21/07/2014
+* The font name in the method setCharSize(..) may exit only on ubuntu 10.10.
+* This method getFont() serach for font that starts with "helvetica" and return it. Otherwise,
+* it return the "fixed font"
+*/
+XFontStruct * GraphicsInterface::getFont (Display * display, int fontsize)
+{   
+     XFontStruct  * structFont;
+     ostringstream ss;
+     ss<<"-*-helvetica-*-r-*-*-"<<fontsize<<"-*-*-*-*-*-*-*";
+     const char *fontname= ss.str().c_str();
+    structFont = XLoadQueryFont (display, fontname);
+    /* If the font could not be loaded, revert to the "fixed" font. */
+    if (! structFont) {
+        fprintf (stderr, "unable to load font %s: using fixed\n", fontname);
+        structFont = XLoadQueryFont (display, "fixed");
+    }
+    return structFont;
+}
+
+void GraphicsInterface::setCharSize(const CharSize charSize)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  charSize_=charSize;
+ 
+  switch(charSize) {
+  case tiny:
+    font_ = getFont(display_,80);//XLoadQueryFont(display_,"*-helvetica-medium-r-normal--*-80-*-iso8859-1");
+    XSetFont(display_,gc_,font_->fid);
+    break;
+  case small:
+    font_ = getFont(display_,100); //XLoadQueryFont(display_, "*-helvetica-medium-r-normal--*-100-*-iso8859-1");
+    XSetFont(display_,gc_,font_->fid);
+    break;
+  case normal:
+    font_ =  getFont(display_,120);//XLoadQueryFont(display_,"10x20");
+    XSetFont(display_,gc_,font_->fid);
+    break;
+  case large:
+    font_ = getFont(display_,140);//XLoadQueryFont(display_,"*-helvetica-medium-r-normal--*-140-*-iso8859-1");
+    XSetFont(display_,gc_,font_->fid);
+    break;
+  case Large:
+    font_ = getFont(display_,180);//XLoadQueryFont(display_,"*-helvetica-medium-r-normal--*-180-*-iso8859-1");
+    XSetFont(display_,gc_,font_->fid);
+    break;
+  case huge:
+    font_ = getFont(display_,240);//XLoadQueryFont(display_,"*-helvetica-medium-r-normal--*-240-*-iso8859-1");
+    XSetFont(display_,gc_,font_->fid);
+  default:
+    cerr << "GraphicsInterface::setCharSize(...) - "
+	 << "Unknown char size." << endl;
+  } 
+}
+
+//=======================================================
+// = OPERATORS
+//=======================================================
+
+void GraphicsInterface::open(const int windowHeight, const int windowWidth, 
+			     const Point<int> &leftTopCorner,
+			     const Palette palette,
+			     const String &windowTitle)
+{
+  require ("The height is positive",(windowHeight > 0));
+  require ("The width is positive",(windowWidth > 0));
+  require ("Left top corner is in the screen",
+	   ((leftTopCorner.getX() >= 0) && (leftTopCorner.getX() < 1500) && 
+	    (leftTopCorner.getY() >= 0) && (leftTopCorner.getY() < 1500)));
+
+  windowHeight_=windowHeight;
+  windowWidth_=windowWidth;
+  windowLeftTopCorner_=leftTopCorner;
+  palette_=palette;
+
+  windowTitle_=windowTitle;
+
+  isOpen_=true;
+
+  init();
+
+  createImage();
+
+}
+
+// ============================================================
+void GraphicsInterface::close()
+{
+  require ("Window is open",(isOpen_ == true));
+
+  //if (palette_ != discreteColor) XDestroyImage(image_);
+  destroyImage();
+  XFreeGC (display_,gc_);
+  XDestroyWindow(display_,window_);
+  XCloseDisplay(display_);
+}
+
+// ============================================================
+void GraphicsInterface::clearScreen()
+{
+  require ("Window is open",(isOpen_ == true));
+
+  XClearWindow(display_,window_);
+  XFlush(display_);  
+}
+
+// ============================================================
+void GraphicsInterface::drawPoint(const Point<int> &point)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The point is in the window",
+	   ((point.getX() >= 0) && (point.getX() <= windowWidth_) && 
+	    (point.getY() >= 0) && (point.getY() <= windowHeight_)));
+
+  XDrawPoint(display_,window_,gc_,
+	     point.getX(),point.getY());
+
+  XFlush(display_);  
+}
+
+// ============================================================
+void GraphicsInterface::drawLine(const Point<float> &startPoint, 
+				 const Point<float> &endPoint, 
+				 const ArrowStyle style)
+{
+  Point<int> p1,p2;
+
+  p1.setX((int) startPoint.getX());
+  p1.setY((int) startPoint.getY());
+  p1.setZ((int) startPoint.getZ());
+
+  p2.setX((int) endPoint.getX());
+  p2.setY((int) endPoint.getY());
+  p2.setZ((int) endPoint.getZ());
+
+  drawLine(p1,p2,style);
+}
+
+// ============================================================
+void GraphicsInterface::drawLine(const Point<int> &startPoint, 
+				 const Point<int> &endPoint, 
+				 const ArrowStyle style)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The two points are in the window",
+	   ((startPoint.getX() >= 0) && (startPoint.getX() <= windowWidth_) && 
+	    (startPoint.getY() >= 0) && (startPoint.getY() <= windowHeight_) &&
+	    (endPoint.getX() >= 0) && (endPoint.getX() <= windowWidth_) && 
+	    (endPoint.getY() >= 0) && (endPoint.getY() <= windowHeight_)));
+
+  // Draws the line
+  XDrawLine(display_,window_,gc_,
+	    startPoint.getX(),startPoint.getY(),
+	    endPoint.getX(),endPoint.getY());
+
+  // Draws the arrow
+  if (style != noArrow) {
+    const int hArrow=4;
+    const float arrowAngle=20.0/180.0*3.14159265; 
+
+    float d=hArrow/cos(arrowAngle);
+
+    if ((style == endArrow) || (style == doubleArrow)) {
+
+      float alpha=atan2(endPoint.getY()-startPoint.getY(),
+			endPoint.getX()-startPoint.getX());
+      float beta=alpha-arrowAngle;
+      float delta=1.5707963-alpha-arrowAngle;
+
+      int x1=(int) (endPoint.getX()-cos(beta)*d);
+      int y1=(int) (endPoint.getY()-sin(beta)*d);
+      int x2=(int) (endPoint.getX()-sin(delta)*d);
+      int y2=(int) (endPoint.getY()-cos(delta)*d);
+      
+      XDrawLine(display_,window_,gc_,x1,y1,endPoint.getX(),endPoint.getY());  
+      XDrawLine(display_,window_,gc_,x1,y1,x2,y2);
+      XDrawLine(display_,window_,gc_,x2,y2,endPoint.getX(),endPoint.getY());
+    }
+
+    if ((style == startArrow) || (style == doubleArrow)) {
+
+      float alpha=atan2(startPoint.getY()-endPoint.getY(),
+			startPoint.getX()-endPoint.getX());
+      float beta=alpha-arrowAngle;
+      float delta=1.5707963-alpha-arrowAngle;
+
+      int x1=(int) (startPoint.getX()-cos(beta)*d);
+      int y1=(int) (startPoint.getY()-sin(beta)*d);
+      int x2=(int) (startPoint.getX()-sin(delta)*d);
+      int y2=(int) (startPoint.getY()-cos(delta)*d);
+      
+      XDrawLine(display_,window_,gc_,x1,y1,
+		startPoint.getX(),startPoint.getY());  
+      XDrawLine(display_,window_,gc_,x1,y1,x2,y2);
+      XDrawLine(display_,window_,gc_,x2,y2,
+		startPoint.getX(),startPoint.getY());
+    }
+  }
+
+  XFlush(display_);  
+}
+  
+// ============================================================ 
+void GraphicsInterface::drawCircle(const Point<int> &center, 
+				   const int radius, 
+				   const AreaPattern pattern)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The center is in the window",
+	   ((center.getX() >= 0) && (center.getX() <= windowWidth_) && 
+	    (center.getY() >= 0) && (center.getY() <= windowHeight_)));
+  require ("The radius is positive",(radius > 0));
+
+  if (pattern == filled) {
+    XSetForeground(display_,gc_,
+		   color_[fillColor_].pixel);
+
+    XFillArc(display_,window_,gc_,
+	     center.getX()-radius,center.getY()-radius,
+	     2*radius,2*radius,0,360*64);
+
+    XSetForeground(display_,gc_,
+		   color_[drawingColor_].pixel);
+  }
+
+  XDrawArc(display_,window_,gc_,
+	   center.getX()-radius,center.getY()-radius,
+	   2*radius,2*radius,0,360*64);
+  XFlush(display_);
+}
+
+// ============================================================
+void GraphicsInterface::drawArc(const Point<int> &center, 
+				const int radius, 
+				const float startAngle, const float endAngle, 
+				const AreaPattern pattern)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The center is in the window",
+	   ((center.getX() >= 0) && (center.getX() <= windowWidth_) && 
+	    (center.getY() >= 0) && (center.getY() <= windowHeight_)));
+  require ("The radius is positive",(radius > 0));
+
+  if (pattern == filled) {
+    XSetForeground(display_,gc_,
+		   color_[fillColor_].pixel);
+
+    XFillArc(display_,window_,gc_,
+	     center.getX()-radius,center.getY()-radius,
+	     2*radius,2*radius,
+	     (int) (startAngle*64),(int) ((endAngle-startAngle)*64));
+    XSetForeground(display_,gc_,
+		   color_[drawingColor_].pixel);
+  }
+
+  XDrawArc(display_,window_,gc_,
+	   center.getX()-radius,center.getY()-radius,
+	   2*radius,2*radius,
+	   (int) (startAngle*64),(int) ((endAngle-startAngle)*64));
+
+  XFlush(display_);
+}
+
+// ============================================================
+void GraphicsInterface::drawEllipse(const Point<int> &center,
+				    const int horizontalRadius, 
+				    const int verticalRadius, 
+				    const AreaPattern pattern)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The center is in the window",
+	   ((center.getX() >= 0) && (center.getX() <= windowWidth_) && 
+	    (center.getY() >= 0) && (center.getY() <= windowHeight_)));
+  require ("The horizontal radius is positive",(horizontalRadius > 0));
+  require ("The vertical radius is positive",(verticalRadius > 0));
+
+  if (pattern == filled) {
+    XSetForeground(display_,gc_,
+		   color_[fillColor_].pixel);
+
+    XFillArc(display_,window_,gc_,
+	     center.getX()-horizontalRadius,
+	     center.getY()-verticalRadius,
+	     2*horizontalRadius,2*verticalRadius,0,360*64);
+
+    XSetForeground(display_,gc_,
+		   color_[drawingColor_].pixel);
+  }
+
+  XDrawArc(display_,window_,gc_,
+	   center.getX()-horizontalRadius,
+	   center.getY()-verticalRadius,
+	   2*horizontalRadius,2*verticalRadius,0,360*64);
+
+  XFlush(display_);
+
+}
+
+// ============================================================
+void GraphicsInterface::drawString(const Point<int> &startPoint, 
+				   const String &string)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The startPoint is in the window",
+	   ((startPoint.getX() >= 0) && (startPoint.getX() <= windowWidth_) && 
+	    (startPoint.getY() >= 0) && (startPoint.getY() <= windowHeight_)));
+
+  XDrawString(display_,window_,gc_,
+	      startPoint.getX(),startPoint.getY(),
+	      string.get(),string.length());
+
+  XFlush(display_);
+}
+
+// ============================================================
+int GraphicsInterface::widthOf(const String &string)
+{
+  return XTextWidth(font_,string.get(),string.length());
+}
+
+// ============================================================
+void GraphicsInterface::drawPolygon(Polygon &aPolygon, 
+				    const AreaPattern pattern)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  // Allocates a vector of point
+  Point<int> *polyPoint;
+  int nbPoint=aPolygon.getSize();
+  polyPoint=new Point<int>[nbPoint];
+
+  // Sets the vector of point with the polygons point
+  aPolygon.initTraversal();
+  int i=0;
+  do {
+    polyPoint[i]=aPolygon.currentValue();
+
+    require ("The points which composed the polygon are in the window",
+	   ((polyPoint[i].getX() >= 0) && 
+	    (polyPoint[i].getX() <= windowWidth_) && 
+	    (polyPoint[i].getY() >= 0) && 
+	    (polyPoint[i].getY() <= windowHeight_)));
+
+    i++;
+  }
+  while (aPolygon.isTraversalLastValue() == false);
+
+  // Draws the lines
+  for (i=0;i<nbPoint-1;i++)
+    drawLine(polyPoint[i],polyPoint[i+1]);
+
+  drawLine(polyPoint[nbPoint-1],polyPoint[0]);
+  
+  // Deallocates the vector of points
+  delete [] polyPoint;
+}
+
+// ============================================================
+void GraphicsInterface::drawBox(const Point<int> &leftTopCorner, 
+				const int height, const int width, 
+				const AreaPattern pattern)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The height is positive",(height > 0));
+  require ("The width is positive",(width > 0));
+  require ("Left top corner is in the window",
+	   ((leftTopCorner.getX() >= 0) && 
+	    (leftTopCorner.getX() <= windowWidth_) && 
+	    (leftTopCorner.getY() >= 0) && 
+	    (leftTopCorner.getY() <= windowWidth_ )));
+
+  if (pattern == filled) {
+    XSetForeground(display_,gc_,
+		   color_[fillColor_].pixel);
+
+    XFillRectangle(display_,window_,gc_,
+		   leftTopCorner.getX(),
+		   leftTopCorner.getY(),
+		   width,height);
+
+    XSetForeground(display_,gc_,
+		   color_[drawingColor_].pixel);
+  }
+
+  XDrawRectangle(display_,window_,gc_,
+		 leftTopCorner.getX(),
+		 leftTopCorner.getY(),
+		 width,height);
+
+  XFlush(display_);
+}
+
+// ============================================================
+void GraphicsInterface::drawMatrix(const Matrix<unsigned char> &matrix)
+{
+  require ("Window is open",(isOpen_ == true));
+
+  int nbLine=matrix.getNbLine();
+  int nbRow=matrix.getNbRow();
+  int l,r;
+
+  for (l=0;l<nbLine;l++)
+    for (r=0;r<nbRow;r++) XPutPixel(image_,r,l,color_[matrix.get(l,r)].pixel);
+
+  XPutImage(display_, window_, gc_, image_,
+            0,0,0,0,(windowWidth_+1),(windowHeight_+1));
+
+  XFlush(display_);
+}
+
+// ============================================================
+Matrix<unsigned char> GraphicsInterface::getMatrix()
+{
+  require ("Window is open",(isOpen_ == true));
+
+  XImage *screenState;
+
+  screenState=XGetImage(display_, window_,0,0,
+			windowWidth_,windowHeight_,
+			AllPlanes,ZPixmap);
+
+  Matrix<unsigned char> image(windowHeight_,windowWidth_);
+
+  int pixel,line,row;
+  for (line=0;line<windowHeight_;line++)
+     for (row=0;row<windowWidth_;row++) {
+       pixel=XGetPixel(screenState,row,line);
+       if (palette_ == discreteColor)
+	 image.set(line,row,pixelToColor(pixel));
+       else
+	 image.set(line,row,pixel);
+     }
+
+  XDestroyImage(screenState);
+
+  return image;
+}
+
+// ============================================================
+void GraphicsInterface::printInto(const String &fileName, const int rightOffset, 
+				  const int leftOffset, const int topOffset, 
+				  const int bottomOffset)
+{
+  require ("Window is open",(isOpen_ == true));
+ 
+  XImage *screenState;
+
+  screenState=XGetImage(display_, window_,0,0,
+			windowWidth_,windowHeight_,
+			AllPlanes,ZPixmap);
+
+  // Opens the file
+  ofstream file(fileName.get());
+  if (!file) {
+    cerr << "GraphicsInterface::printInto(...) - "
+         << "Can't open the file " << fileName.get() << endl;
+    return;
+  }
+
+  // Prints the matrix into the file
+  int line,row;
+  int pixel,color;
+
+  switch(palette_) {
+
+  case continuousColor:
+
+    file << "P6" << endl;
+    file << windowWidth_-rightOffset-leftOffset << " " << windowHeight_-topOffset-bottomOffset << endl;
+    file << "255" << endl;
+    for (line=topOffset;line<windowHeight_-bottomOffset;line++)
+      for (row=leftOffset;row<windowWidth_-rightOffset;row++) {
+        pixel=XGetPixel(screenState,row,line);
+
+	if ((depth_ == 24) || (depth_ == 15) || (depth_ == 16)) color=pixelToColor(pixel);
+	else color=pixel;
+
+        file << (char) (color_[color].red/256) 
+	     << (char) (color_[color].green/256)
+	     << (char) (color_[color].blue/256);
+      }
+
+    break;
+
+  case continuousGray:
+
+    file << "P6" << endl;
+    file << windowWidth_-rightOffset-leftOffset << " " << windowHeight_-topOffset-bottomOffset << endl;
+    file << "255" << endl;
+    for (line=topOffset;line<windowHeight_-bottomOffset;line++)
+      for (row=leftOffset;row<windowWidth_-rightOffset;row++) {
+
+        pixel=XGetPixel(screenState,row,line);
+
+	if ((depth_ == 24) || (depth_ == 15) || (depth_ == 16)) color=pixelToColor(pixel);
+	else color=pixel;
+
+	file << (char) (color_[color].red/256)
+	     << (char) (color_[color].red/256)
+	     << (char) (color_[color].red/256);	  
+      }
+    break;
+
+  case discreteColor:
+    file << "P6" << endl;
+    file << windowWidth_-rightOffset-leftOffset << " " << windowHeight_-topOffset-bottomOffset << endl;
+    file << "255" << endl;
+    for (line=topOffset;line<windowHeight_-bottomOffset;line++)
+      for (row=leftOffset;row<windowWidth_-rightOffset;row++) {
+
+        pixel=XGetPixel(screenState,row,line);
+	color=pixelToColor(pixel);
+        file << (char) (color_[color].red/256) 
+	     << (char) (color_[color].green/256)
+	     << (char) (color_[color].blue/256);
+      }
+    break;
+  }
+
+  file.close();
+
+  XDestroyImage(screenState);
+}
+
+// ============================================================
+void GraphicsInterface::printInto(const String &fileName, 
+				  const Matrix<unsigned char> image)
+{
+  require ("Window is open",(isOpen_ == true));
+  require ("The number of lines of the image and the window are the same.",
+           (image.getNbLine() == windowHeight_));
+  require ("The number of columns of the image and the window are the same.",
+           (image.getNbRow() == windowWidth_));
+ 
+
+  // Opens the file
+  ofstream file(fileName.get());
+  if (!file) {
+    cerr << "GraphicsInterface::printInto(...) - "
+         << "Can't open the file " << fileName.get() << endl;
+    return;
+  }
+
+  // Prints the matrix into the file
+  int line,row;
+  int color;
+
+  switch(palette_) {
+
+  case continuousColor:
+
+    file << "P6" << endl;
+    file << windowWidth_ << " " << windowHeight_ << endl;
+    file << "255" << endl;
+    for (line=0;line<windowHeight_;line++)
+      for (row=0;row<windowWidth_;row++) {
+        color=image.get(line,row);
+
+        file << (char) (color_[color].red/256) 
+	     << (char) (color_[color].green/256)
+	     << (char) (color_[color].blue/256);
+      }
+
+    break;
+
+  case continuousGray:
+
+    file << "P6" << endl;
+    file << windowWidth_ << " " << windowHeight_ << endl;
+    file << "255" << endl;
+    for (line=0;line<windowHeight_;line++)
+      for (row=0;row<windowWidth_;row++) {
+
+        color=image.get(line,row);
+
+	file << (char) (color_[color].red/256)
+	     << (char) (color_[color].red/256)
+	     << (char) (color_[color].red/256);	  
+      }
+    break;
+
+  case discreteColor:
+
+    file << "P6" << endl;
+    file << windowWidth_ << " " << windowHeight_ << endl;
+    file << "255" << endl;
+    for (line=0;line<windowHeight_;line++)
+      for (row=0;row<windowWidth_;row++) {
+        color=image.get(line,row);
+
+        file << (char) (color_[color].red/256) 
+	     << (char) (color_[color].green/256)
+	     << (char) (color_[color].blue/256);
+      }
+
+    break;
+
+  }
+
+  file.close();
+}
+
+//=======================================================
+// = PRIVATE METHODS 
+//=======================================================
+
+void GraphicsInterface::init()
+{
+  XEvent  event;
+  XSizeHints windowInfo;
+
+  int screen;
+  unsigned long foregroundColor;
+  unsigned long backgroundColor;
+
+  int i;
+
+  if ((display_=XOpenDisplay("")) == NULL) {
+    cout << "Can not connect to X server. Check the DISPLAY variable." 
+	 << endl;
+    exit(0);
+  }
+  
+  screen=DefaultScreen(display_);
+  depth_=DefaultDepth(display_,screen);
+
+  backgroundColor = WhitePixel(display_,screen);
+  foregroundColor = BlackPixel(display_,screen);
+ 
+  // Creates the window
+  windowInfo.x = windowLeftTopCorner_.getX(); 
+  windowInfo.y = windowLeftTopCorner_.getY();
+  windowInfo.width = windowWidth_; 
+  windowInfo.height=windowHeight_;
+  windowInfo.flags=PPosition | PSize;
+  window_=XCreateSimpleWindow(display_,DefaultRootWindow(display_), 
+                              windowInfo.x,windowInfo.y, 
+                              windowInfo.width,windowInfo.height,5, 
+                              foregroundColor,backgroundColor); 
+
+  XSetStandardProperties (display_,window_,
+			  windowTitle_.get(),windowTitle_.get(),
+                          None,(char **) NULL, 1, &windowInfo);
+
+  // Creates the palette
+  if ((palette_ == continuousColor) || (palette_ == continuousGray)) {    
+    nbMaxColor_=256;
+
+  
+    if (depth_ == 8) 
+      cmap_=XCreateColormap(display_,window_,
+			   DefaultVisual(display_,screen),
+			   AllocAll); 
+    else
+      cmap_=DefaultColormap(display_,DefaultScreen(display_));
+
+    for (i=0;i<256;i++) {
+
+      if (palette_ == continuousColor) {
+        // Creates the white
+        if (i == 0) {
+          color_[i].red   = 65535;
+          color_[i].blue  = 65535;
+          color_[i].green = 65535;
+        }
+        // Creates the white
+        else if (i == 1) {
+          color_[i].red   = 0;
+          color_[i].blue  = 0;
+          color_[i].green = 0;
+        }
+        // Creates the other colors
+        else if (i <= 41) {
+          color_[i].red   = 65535;
+          color_[i].blue  = 0;                 // r -> gr
+          color_[i].green = 65535*(i-0)/41;
+        }
+        else if (i <= 84) {
+          color_[i].red   = 65535*(84-i)/42;
+          color_[i].blue  = 0;                 // gr -> g
+          color_[i].green = 65535;
+        }
+        else if (i <= 127) {
+          color_[i].blue   = 65535*(i-85)/42;  // g -> gb
+          color_[i].red  = 0;
+          color_[i].green = 65535;
+        }
+        else if (i <= 170) {
+          color_[i].red   = 0;
+          color_[i].blue  = 65535;             // gb -> b
+          color_[i].green = 65535*(170-i)/42;
+        }
+        else if (i <= 212) {
+          color_[i].red   = 65535*(i-171)/41;
+          color_[i].blue  = 65535;              // b -> rb
+          color_[i].green = 0;
+        }
+        else {
+          color_[i].red   = 65535;
+          color_[i].blue  = 65535*(255-i)/43;    // rb -> r
+          color_[i].green = 0;
+        }
+      }
+      else {
+        // Defines the gray palette
+        color_[i].blue =(unsigned short) (i*257); 
+        color_[i].green=(unsigned short) (i*257);
+        color_[i].red  =(unsigned short) (i*257);
+      }
+      color_[i].pixel=i;
+      color_[i].flags=DoRed | DoGreen | DoBlue;
+
+      if ((depth_ == 24) || (depth_ == 15) || (depth_ == 16))
+	if (XAllocColor(display_,cmap_,&color_[i]) == 0) 
+	  cout << "Can't allocate color " << i << endl;
+
+    }
+
+    // Sets the colormap
+
+    if (depth_ == 8) XStoreColors(display_,cmap_,color_,nbMaxColor_);	
+    XSetWindowColormap(display_,window_,cmap_);
+  }
+  else {
+    // Defines a discrete colormap composed of 6 colors.
+    nbMaxColor_=6;
+
+    cmap_=DefaultColormap(display_,DefaultScreen(display_));
+
+    // black
+    color_[GI_black].blue=0; 
+    color_[GI_black].green=0; 
+    color_[GI_black].red=0; 
+    color_[GI_black].pixel=GI_black;
+    color_[GI_black].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_black]);  
+
+    // white
+    color_[GI_white].blue=65535; 
+    color_[GI_white].green=65535; 
+    color_[GI_white].red=65535; 
+    color_[GI_white].pixel=GI_white;
+    color_[GI_white].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_white]);  
+
+    // red
+    color_[GI_red].blue=0; 
+    color_[GI_red].green=0; 
+    color_[GI_red].red=65535; 
+    color_[GI_red].pixel=GI_red;
+    color_[GI_red].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_red]);
+
+    // green
+    color_[GI_green].blue=0; 
+    color_[GI_green].green=65535; 
+    color_[GI_green].red=0; 
+    color_[GI_green].pixel=GI_green;
+    color_[GI_green].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_green]);  
+
+    // blue
+    color_[GI_blue].blue=65535; 
+    color_[GI_blue].green=0; 
+    color_[GI_blue].red=0; 
+    color_[GI_blue].pixel=GI_blue;
+    color_[GI_blue].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_blue]);  
+
+    // yellow
+    color_[GI_yellow].blue=0; 
+    color_[GI_yellow].green=65535; 
+    color_[GI_yellow].red=65535; 
+    color_[GI_yellow].pixel=GI_yellow;
+    color_[GI_yellow].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_yellow]);  
+
+    // gray
+    color_[GI_gray].blue=16384; 
+    color_[GI_gray].green=16384; 
+    color_[GI_gray].red=16384; 
+    color_[GI_gray].pixel=GI_gray;
+    color_[GI_gray].flags=DoRed | DoGreen | DoBlue;
+    XAllocColor(display_,cmap_,&color_[GI_gray]);  
+
+    XSetWindowColormap(display_,window_,cmap_);
+  }
+
+  // Creates the graphic context 
+  gc_ = XCreateGC (display_,window_,0,0);
+ 
+  // Sets the inital color
+  XSetBackground(display_,gc_,backgroundColor);
+  XSetForeground(display_,gc_,foregroundColor);
+ 
+  XSelectInput (display_, window_, 
+                ButtonPressMask | KeyPressMask | ExposureMask);
+ 
+  // Sets the default values
+  setLineWidth(thin);
+  setLineStyle(continuous);
+  setDrawingColor(GI_black);
+  setCharSize(normal);
+
+  // Maps the window and waits for the next event
+  XMapRaised (display_,window_);
+  XNextEvent (display_, &event);
+   
+}
+
+// ============================================================
+void GraphicsInterface::createImage() 
+{
+  require ("Window is open",(isOpen_ == true));
+
+  int format;
+  int bitmap_pad;
+
+//   size=(windowWidth_+1)*(windowHeight_+1);
+//   data = (char *) calloc (3*(size+1),1);
+
+  if (depth_ == 1) {
+    format=XYPixmap;
+    bitmap_pad=32;
+  }
+  else {
+    format=ZPixmap;
+    bitmap_pad=8;
+    if (depth_ > 8) bitmap_pad=32;
+  }
+
+//   image_ = XCreateImage(display_,
+//                         DefaultVisual(display_,DefaultScreen(display_)),
+//                         depth_,format,0,data,(windowWidth_+1),
+//                         (windowHeight_+1),32,3*(windowWidth_+1));
+
+  image_ = XCreateImage(display_,
+			DefaultVisual(display_,DefaultScreen(display_)),
+			depth_,format,0,0,windowWidth_+1,
+			windowHeight_+1,bitmap_pad,0);
+
+  if (image_ == 0) {
+    cout << "Image structure allocation failure." << endl;
+    exit(0);
+  }
+
+  image_->data=new char[image_->bytes_per_line*(windowHeight_+1)];
+
+  if (image_->data == 0) {
+    cout << "Image memory allocation failure." << endl;
+    exit(0);
+  }
+
+}
+
+// ============================================================
+void GraphicsInterface::destroyImage()
+{
+  delete [] image_->data;
+  XFree(image_);
+}
+
+// ============================================================
+int GraphicsInterface::pixelToColor(const int pixel) const
+{
+  int i=0;
+
+  while(1) {
+
+    if (color_[i].pixel == pixel) break;
+
+    i++;
+
+    if (i == nbMaxColor_+1) {
+      cout << "I can not find the color associated to the pixel " 
+	   << pixel << endl;      
+      break;
+    }
+  }
+
+  return i;
+  
+}

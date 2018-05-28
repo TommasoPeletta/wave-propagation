@@ -11,8 +11,8 @@ using namespace std;
 //Pour lancer le code : g++ 2d_wave_propagation.cc -o Wave
 //                      ./Wave
 
-const int sizeX = 100;
-const int sizeY = 400;
+const int sizeX = 300;
+const int sizeY = 500;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -180,12 +180,18 @@ void display()
     {
         for( size_t y = 0; y < sizeY; ++y )
         {
-            data[x][y][0] = 0;
-            data[x][y][1] = 0;
-            data[x][y][2] = (int)((rhoComputation(f_in,x,y)/200) *  128 +128) * 256 *256 *256;//(((rhoComputation(f_in,x,y)/50000) * 128)+128)*256 * 256 * 256;
+            if (rhoComputation(f_in,x,y) == 0) {
+              data[x][y][0] = 255;
+              data[x][y][1] = 0;
+              data[x][y][2] = 0;
+            }else{
+              data[x][y][0] = 0;
+              data[x][y][1] = 0;
+              data[x][y][2] = (int)((rhoComputation(f_in,x,y)/50) *  128 +128) * 256 *256 *256;//(((rhoComputation(f_in,x,y)/50000) * 128)+128)*256 * 256 * 256;
             //data[y][x][2] = ( rand() % 256 ) * 256 * 256 * 256;
           //double tmp = (rhoComputation(f_in,x,y));
-          cout << (int)((abs(rhoComputation(f_in,x,y))/500) *  256) << "   ";
+          //cout << (int)((abs(rhoComputation(f_in,x,y))/100) *  256) << "   ";
+            }
         }
     }
 
@@ -204,10 +210,10 @@ void display()
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
 
 
-    for (int z=0; z < sizeX; z++){
-      tabl_n[z][0] = 0.5;       // le point [5, 5] est une source
-      //tabl_n[z][10] = -1;        // le point [5, 6] est une surface réfléchissante
-    }
+   //for (int z=0; z < sizeX; z++){
+      tabl_n[150][40] = 0.5;       // le point [5, 5] est une source
+    //  tabl_n[z][50] = -1;        // le point [5, 6] est une surface réfléchissante
+  //  }
 
     for (int i = 1; i <= 500;i++){
       foutComputation(tabl_n,v,vi,f_in,i);
@@ -215,7 +221,7 @@ void display()
       //afficher(f_in);
     }
     cout << "\n";
-    //afficher(f_in);
+    afficher(f_in);
 
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );

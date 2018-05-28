@@ -1,0 +1,38 @@
+    Utility Library based on PELABS by Alexandre Dupuis
+            with the help of Stephane Marconi
+          SPC group, CUI, University of Geneva
+
+First untar the library: tar -xvf spcTool.tar
+
+In order to work, the X11 development file must be installed.
+By default they are not on Ubuntu systems. Install the library
+                libx11-dev
+with either the synaptic package manager or with 
+          sudo apt-get install libx11-dev
+
+
+Then, to compile the library:
+
+    cd SpcTools
+    make clean
+
+then:
+
+    make
+
+
+The directory Spc/Tools/Example gives some programs illustrating how to
+use the library, namely cellular automata simulation and function plots. 
+
+Compile them using the given Makefile:
+ 
+                   make parity
+
+or
+                   make plotExple
+
+Note: The DISPLAY environment variable should be set properly
+      e.g   setenv DISPLAY :0   to display on  the local machine
+
+For documentation on how to use the library, read
+               spcTools.pdf 
