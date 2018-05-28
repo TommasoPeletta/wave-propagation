@@ -19,6 +19,8 @@ const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
+const double size_c = 100;
+double beta[sizeX][sizeY];
 
 typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
@@ -68,19 +70,23 @@ void jComputation(double res[2],double vi[q+1][2], double f_in[sizeX][sizeY][q+1
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < q+1; k++){
           switch (k) {
-            case 0 : f_in[i][j][k] = f_out[i][j][k];
+            case 0 : f_in[i][j][k] = beta[i][j] * f_out[i][j][k];
                       break;
             case 1 : if (j != (sizeY-1)) {
-                      f_in[i][j+1][k] = f_out[i][j][k];}
+                      f_in[i][j+1][k] = beta[i][j] * f_out[i][j][k];
+                    }
                       break;
             case 2 : if (i != 0) {
-                        f_in[i-1][j][k] = f_out[i][j][k];}
+                        f_in[i-1][j][k] = beta[i][j] * f_out[i][j][k];
+                      }
                       break;
             case 3 : if (j != 0) {
-                      f_in[i][j-1][k] = f_out[i][j][k];}
+                      f_in[i][j-1][k] =beta[i][j] * f_out[i][j][k];
+                    }
                     break;
             case 4 : if (i != (sizeX-1)) {
-                      f_in[i+1][j][k] = f_out[i][j][k];}
+                      f_in[i+1][j][k] =beta[i][j] * f_out[i][j][k];
+                    }
                     break;
           }
         }
@@ -214,20 +220,35 @@ void display()
     //double deltaT = 0.25*pow(10,-6); //dt =dx / vitesselumière(3*10⁸)
     //double deltaT = deltaX/v;
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
-
+    for (int i = 0; i < sizeX; i++){
+      for (int j = 0; j < sizeY; j++){
+          if (i<size_c) {
+            beta[i][j] = 1 - (size_c - i)/size_c;
+          } else if (sizeX - i < size_c ){
+            beta[i][j] = 1 - (size_c - (sizeX - i)) / size_c;
+          } else if (sizeY - j < size_c ){
+            beta[i][j] = 1 - (size_c - (sizeY - j)) / size_c;
+          } else if (j < size_c ){
+            beta[i][j] = 1 - (size_c - j) / size_c;
+            //cout << "beta" << beta[i][j] << " ";
+          } else {
+            beta[i][j] = 1;
+          }
+        }
+    }
 
    for (int z=0; z < sizeX; z++){
       tabl_n[200][200] = 0.5;       // le point [5, 5] est une source
-      tabl_n[z][350] = -1;        // le point [5, 6] est une surface réfléchissante
+    //  tabl_n[z][350] = -1;        // le point [5, 6] est une surface réfléchissante
   }
 
-    for (int i = 1; i <= 2000;i++){
+    for (int i = 1; i <= 600;i++){
       foutComputation(tabl_n,v,vi,f_in,i);
       //cout << "\n";
       //afficher(f_in);
     }
     cout << "\n";
-    afficher(f_in);
+  //  afficher(f_in);
 
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );
