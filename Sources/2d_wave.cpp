@@ -8,11 +8,12 @@
 using std::vector;
 using namespace std;
 
-//Pour lancer le code : g++ 2d_wave_propagation.cc -o Wave
-//                      ./Wave
+//Pour lancer le code : g++ 2d_wave.cpp -o lookAtThis -lglut -lGL
+//                      ./lookAtThis
 
-const int sizeX = 300;
-const int sizeY = 500;
+
+const int sizeX = 400;
+const int sizeY = 400;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -137,7 +138,7 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
         double Amplitude = 100;//0.1875*pow(10,-11);
         double phase = 0;
         double facteur = 0.04;       // facteru must be <= 1 to assure lambda/deltaX > 10
-        double frequence = 4*pow(10,5);
+        double frequence = 2*pow(10,5);
         //double frequenceXtemps = frequence*iteration*deltaT;
         //double frequenceXtemps = 5*facteur*iteration*v/q;      //la frequence fois le temps (représenté par deltaT * iteration)
         for (int k = 0; k<=q ; k++){
@@ -181,17 +182,22 @@ void display()
         for( size_t y = 0; y < sizeY; ++y )
         {
             if (rhoComputation(f_in,x,y) == 0) {
-              data[x][y][0] = 255;
+              data[x][y][0] = 128;
               data[x][y][1] = 0;
               data[x][y][2] = 0;
-            }else{
+            }else if (rhoComputation(f_in,x,y) < 0) {
               data[x][y][0] = 0;
               data[x][y][1] = 0;
-              data[x][y][2] = (int)((rhoComputation(f_in,x,y)/50) *  128 +128) * 256 *256 *256;//(((rhoComputation(f_in,x,y)/50000) * 128)+128)*256 * 256 * 256;
-            //data[y][x][2] = ( rand() % 256 ) * 256 * 256 * 256;
+              data[x][y][2] = (int)(abs(rhoComputation(f_in,x,y)/50) *  256) * 256 *256 *256;//(((rhoComputation(f_in,x,y)/50000) * 128)+128)*256 * 256 * 256;
+            } else {
+              data[x][y][0] = (int)(abs(rhoComputation(f_in,x,y)/50) *  256) * 256 *256 *256;
+              data[x][y][1] = 0;
+              data[x][y][2] = 0;
+            }
+
           //double tmp = (rhoComputation(f_in,x,y));
           //cout << (int)((abs(rhoComputation(f_in,x,y))/100) *  256) << "   ";
-            }
+
         }
     }
 
@@ -210,12 +216,12 @@ void display()
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
 
 
-   //for (int z=0; z < sizeX; z++){
-      tabl_n[150][40] = 0.5;       // le point [5, 5] est une source
-    //  tabl_n[z][50] = -1;        // le point [5, 6] est une surface réfléchissante
-  //  }
+   for (int z=0; z < sizeX; z++){
+      tabl_n[200][200] = 0.5;       // le point [5, 5] est une source
+      tabl_n[z][350] = -1;        // le point [5, 6] est une surface réfléchissante
+  }
 
-    for (int i = 1; i <= 500;i++){
+    for (int i = 1; i <= 2000;i++){
       foutComputation(tabl_n,v,vi,f_in,i);
       //cout << "\n";
       //afficher(f_in);
