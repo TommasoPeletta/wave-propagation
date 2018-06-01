@@ -24,6 +24,7 @@ typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
 typedef double vecteur[2];
 type_F f_in = {{{0}}};
+double rho_max;
 
 // !!!! A FAIRE !!!!!
 
@@ -120,6 +121,9 @@ void foutComputation(double n[sizeX][sizeY], double v, double vi[q+1][2], double
     for (int j = 0; j < sizeY; j++){
       if (n[i][j]>=1) {
         rho = rhoComputation(f_in,i,j);
+        if (abs(rho) > rho_max) {
+          rho_max = abs(rho);
+        }
         double j_sum[2];
         jComputation(j_sum,vi,f_in,i,j);
 
@@ -224,6 +228,7 @@ void display()
 
 
     for (int i = 1; i <= 1000;i++){
+      rho_max = 0;
       foutComputation(tabl_n,v,vi,f_in,i);
       //cout << "\n";
       //afficher(f_in);

@@ -35,7 +35,7 @@ type_coeff_reffrac tabl_n;
 
 
 
-double vectors_prod(double x[3],double y[3])
+double vectors_prod(vecteur x,vecteur y)
 {
     double res = 0.0;
     int i;
@@ -49,7 +49,7 @@ double vectors_prod(double x[3],double y[3])
 
 
 
-void scalar_prod(double x[3], double y){
+void scalar_prod(vecteur x, double y){
   for (int i = 0; i < 3; i++){
     x[i] = x[i] * y;
   }
@@ -58,7 +58,7 @@ void scalar_prod(double x[3], double y){
 
 
 
-void vector_sum(double x[3], double y[3]){
+void vector_sum(vecteur x, vecteur y){
   for (int i = 0; i < 3; i++){
     x[i] = x[i] + y[i];
   }
@@ -67,11 +67,11 @@ void vector_sum(double x[3], double y[3]){
 
 
 
-void jComputation(double res[3],double vi[q+1][3], type_F f_in ,int x ,int y, int z){
+void jComputation(vecteur res,double vi[q+1][3], type_F f_in ,int x ,int y, int z){
   res[0] = 0;
   res[1] = 0;
   res[2] = 0;
-  double v_aux[3];
+  vecteur v_aux;
   for (int i = 1; i < q+1; i++){
     v_aux[0] = vi[i][0];
     v_aux[1] = vi[i][1];
@@ -168,10 +168,10 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
           if (abs(rho)>rho_max){
             rho_max = rho;
           }
-          double j_sum[3];
+          vecteur j_sum;
           jComputation(j_sum,vi,f_in,i,j,z);
           for (int k = 0; k < q+1; k++){
-            double vi_aux[3];
+            vecteur vi_aux;
             vi_aux[0] = vi[k][0];
             vi_aux[1] = vi[k][1];
             vi_aux[2] = vi[k][2];
