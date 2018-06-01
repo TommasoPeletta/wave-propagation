@@ -156,7 +156,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       if (n[i][j]>=1) {
         rho = rhoComputation(f_in,i,j);
         tabl_rho[i][j] = rho;
-        if (abs(rho)>rho_max){
+        if (abs(rho)>rho_max && iteration == 3){
           rho_max = rho;
         }
         vecteur j_sum;
@@ -240,7 +240,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     fill_space(tabl_n,1);
     fill_matrix_n_in(tabl_n,100,50,250,50,-1);
     fill_matrix_n_in(tabl_n,300,50,250,50,-1);
-    fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.995 , 1);
+    fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.95 , 1);
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
 
 
@@ -283,15 +283,17 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
 
     // iteration
-    for (int i = 1; i <= 700;i++){
+    for (int i = 1; i <= 1200;i++){
 
 
-      rho_max = 0;
+      //rho_max = 0;
       foutComputation(tabl_n,v,vi,f_in,i);
 
       for (int k = 0; k < sizeX; k++){
         for (int j = 0; j < sizeY; j++){
+          if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
             image.set(j,k,(unsigned char) ((tabl_rho[k][j]/rho_max) *  33 + 164));
+          }
         }
       }
 
