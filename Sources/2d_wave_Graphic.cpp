@@ -230,6 +230,27 @@ void fill_space(type_coeff_reffrac matrix, double in) {
   }
 
 
+  void parabole(){
+      fill_space(tabl_n,1);
+      for (int z=0; z < sizeX; z++){
+        tabl_n[200][100] = 0.5;       // le point [200, 200] est une source
+        int f = 20;
+        tabl_n[z][(int)(100-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;        // le point [5, 6] est une surface réfléchissante
+     }
+  }
+  void diag(){
+      fill_space(tabl_n,1);
+      for (int z=0; z < sizeX; z++){
+         tabl_n[z][40] = 0.5;
+         for (int i = 0; i < 20; i++){
+           tabl_n[z][z+80+i] = 1.7;
+         }
+         //tabl_n[z][z+100] = -1;
+       }
+
+  }
+
+
 
   int main( int argc, char **argv ) {
 
@@ -280,6 +301,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       tabl_n[45][z] = 0.5;
   }
 
+    //parabole();
+    diag();
 
 
     // iteration
