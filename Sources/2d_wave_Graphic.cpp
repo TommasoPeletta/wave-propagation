@@ -232,10 +232,13 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
   void parabole(){
       fill_space(tabl_n,1);
+      tabl_n[200][100] = 0.5;
+      //tabl_n[150][200] = 0.5;
+      int f = 20;
       for (int z=0; z < sizeX; z++){
-        tabl_n[200][100] = 0.5;       // le point [200, 200] est une source
-        int f = 20;
-        tabl_n[z][(int)(100-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;        // le point [5, 6] est une surface réfléchissante
+        for (int i = 0; i < 10; i++){    //pour avoir un miroir de 10 d'épaisseur
+          tabl_n[z][(int)(100-i-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;
+        }
      }
   }
   void diag(){
@@ -248,6 +251,11 @@ void fill_space(type_coeff_reffrac matrix, double in) {
          //tabl_n[z][z+100] = -1;
        }
 
+  }
+
+  void source_Centre(){
+      fill_space(tabl_n,1);
+      tabl_n[sizeX/2][sizeY/2] = 0.5;
   }
 
 
@@ -266,26 +274,30 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
 
 
-    /*for (int i = 0; i < sizeX; i++){
+    for (int i = 0; i < sizeX; i++){
       for (int j = 0; j < sizeY; j++){
-          if (i<size_c) {
-            beta[i][j] = 1 - (size_c - i)/size_c;
-            beta[i][j] = 0.995;
-          } else if (sizeX - i < size_c ){
-            beta[i][j] = 1 - (size_c - (sizeX - i)) / size_c;
-            beta[i][j] = 0.995;
-          } else if (sizeY - j < size_c ){
-            beta[i][j] = 1 - (size_c - (sizeY - j)) / size_c;
-            beta[i][j] = 0.995;
-          } else if (j < size_c ){
-            beta[i][j] = 1 - (size_c - j) / size_c;
-            beta[i][j] = 0.995;
-            //cout << "beta" << beta[i][j] << " ";
-          } else {
-            beta[i][j] = 1;
-          }
+        if(i==0 or j==0 or i == sizeX-1 or j == sizeY-1){
+          beta[i][j] = 0;
+          break;
         }
-    }*/
+          double x = 1;
+          if (i<size_c and i < j and i < sizeY - j) {
+            x =  1 - (size_c - i)/size_c;
+
+          } else if (sizeX - i < size_c  and sizeX - i < j and sizeX - i < sizeY - j){
+            x = 1 - (size_c - (sizeX - i)) / size_c;
+          } else if (sizeY - j < size_c ){
+            x = 1 - (size_c - (sizeY - j)) / size_c;
+          } else if (j < size_c ){
+            x = 1 - (size_c - j) / size_c;
+            //cout << "beta" << beta[i][j] << " ";
+          }
+          //beta[i][j] = 2*x-pow(x,2);
+           //beta[i][j] = 8*pow(x,3) - 17 * pow(x,2) + 10;
+           beta[i][j] = 1-1/1000/x;
+
+        }
+    }
 
 
 
@@ -302,7 +314,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
   }
 
     //parabole();
-    diag();
+    //diag();
+    source_Centre();
 
 
     // iteration
@@ -315,7 +328,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       for (int k = 0; k < sizeX; k++){
         for (int j = 0; j < sizeY; j++){
           if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-            image.set(j,k,(unsigned char) ((tabl_rho[k][j]/rho_max) *  33 + 164));
+            image.set(j,k,(unsigned char) (3*(tabl_rho[k][j]/rho_max) *  33 + 164));
           }
         }
       }
