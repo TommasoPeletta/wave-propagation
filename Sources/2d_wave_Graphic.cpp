@@ -24,14 +24,13 @@ const double pi = 3.14159265358979323846;
 const double size_c = 40;
 double beta[sizeX][sizeY];
 double rho_max;
-
+int alpha; //affichage
 typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
 typedef double vecteur[2];
 type_F f_in = {{{0}}};
 type_coeff_reffrac tabl_n;
 type_coeff_reffrac tabl_rho;
-
 
 
 double vectors_prod(vecteur x,vecteur y)
@@ -182,11 +181,11 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
           f_out[i][j][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
         }
       } else {
-        f_out[i][j][0] = -f_in[i][j][0];
-        f_out[i][j][1] = -f_in[i][j][3];
-        f_out[i][j][2] = -f_in[i][j][4];
-        f_out[i][j][3] = -f_in[i][j][1];
-        f_out[i][j][4] = -f_in[i][j][2];
+        f_out[i][j][0] = -f_in[i][j][0] * abs(tabl_n[i][j]);
+        f_out[i][j][1] = -f_in[i][j][3] * abs(tabl_n[i][j]);
+        f_out[i][j][2] = -f_in[i][j][4] * abs(tabl_n[i][j]);
+        f_out[i][j][3] = -f_in[i][j][1] * abs(tabl_n[i][j]);
+        f_out[i][j][4] = -f_in[i][j][2] * abs(tabl_n[i][j]);
       }
     }
   }
@@ -221,6 +220,35 @@ void fill_matrix_n_in(type_coeff_reffrac matrix, int startY, int width,int start
   }
 }
 
+
+void beta_initialization(){
+  for (int i = 0; i < sizeX; i++){
+    for (int j = 0; j < sizeY; j++){
+      if(i==0 or j==0 or i == sizeX-1 or j == sizeY-1){
+        beta[i][j] = 0;
+        break;
+      }
+        double x = 1;
+        if (i<size_c and i < j and i < sizeY - j) {
+          x =  1 - (size_c - i)/size_c;
+
+        } else if (sizeX - i < size_c  and sizeX - i < j and sizeX - i < sizeY - j){
+          x = 1 - (size_c - (sizeX - i)) / size_c;
+        } else if (sizeY - j < size_c ){
+          x = 1 - (size_c - (sizeY - j)) / size_c;
+        } else if (j < size_c ){
+          x = 1 - (size_c - j) / size_c;
+          //cout << "beta" << beta[i][j] << " ";
+        }
+        //beta[i][j] = 2*x-pow(x,2);
+         //beta[i][j] = 8*pow(x,3) - 17 * pow(x,2) + 10;
+         beta[i][j] = 1-1/1000/x;
+
+      }
+  }
+}
+
+
 void fill_space(type_coeff_reffrac matrix, double in) {
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
@@ -228,6 +256,9 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       }
     }
   }
+
+
+
 
 
   void parabole(){
@@ -240,7 +271,12 @@ void fill_space(type_coeff_reffrac matrix, double in) {
           tabl_n[z][(int)(100-i-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;
         }
      }
+     alpha = 3;
   }
+
+
+
+
   void diag(){
       fill_space(tabl_n,1);
       for (int z=0; z < sizeX; z++){
@@ -250,13 +286,53 @@ void fill_space(type_coeff_reffrac matrix, double in) {
          }
          //tabl_n[z][z+100] = -1;
        }
-
+       alpha = 1;
   }
+
+
+
 
   void source_Centre(){
       fill_space(tabl_n,1);
       tabl_n[sizeX/2][sizeY/2] = 0.5;
+      alpha = 3;
   }
+
+
+
+
+  void Diffraction(){
+    fill_space(tabl_n,1);
+    for (int z=0; z < sizeY; z++){
+       tabl_n[45][z] = 0.5;
+   }
+   for (int z=0; z < sizeY; z++){
+     if (z != 250){
+       tabl_n[200][z] = -0.1;
+     }
+   }
+   alpha = 1;
+  }
+
+  void fente(){
+      int d = 40;
+      fill_space(tabl_n,1);
+      tabl_n[200][50] = 0.5;
+      for (int z=0;z< sizeX; z++){
+        tabl_n[z][300] = -0.1;
+        tabl_n[z][301] = -0.1 ;
+        tabl_n[z][302] = -0.1;
+        tabl_n[z][303] = -0.1 ;
+        tabl_n[z][304] = -0.1;
+      }
+      for (int z= 0; z<4;z++){
+        for (int y =0;y <5;y++){
+        tabl_n[200+d+z][300+y]  = 1;
+        tabl_n[200-d-z][300+y]  = 1;
+      }
+      }
+      alpha = 200;
+    }
 
 
 
@@ -266,57 +342,19 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     window.open(sizeY,sizeX);
     image.setDimension(sizeY,sizeX);
 
-    fill_space(tabl_n,1);
-    fill_matrix_n_in(tabl_n,100,50,250,50,-1);
-    fill_matrix_n_in(tabl_n,300,50,250,50,-1);
+
+    //fill_matrix_n_in(tabl_n,100,50,250,50,-1);
+    //fill_matrix_n_in(tabl_n,300,50,250,50,-1);
     fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.95 , 1);
+    //beta_initialization();
+
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
-
-
-
-    for (int i = 0; i < sizeX; i++){
-      for (int j = 0; j < sizeY; j++){
-        if(i==0 or j==0 or i == sizeX-1 or j == sizeY-1){
-          beta[i][j] = 0;
-          break;
-        }
-          double x = 1;
-          if (i<size_c and i < j and i < sizeY - j) {
-            x =  1 - (size_c - i)/size_c;
-
-          } else if (sizeX - i < size_c  and sizeX - i < j and sizeX - i < sizeY - j){
-            x = 1 - (size_c - (sizeX - i)) / size_c;
-          } else if (sizeY - j < size_c ){
-            x = 1 - (size_c - (sizeY - j)) / size_c;
-          } else if (j < size_c ){
-            x = 1 - (size_c - j) / size_c;
-            //cout << "beta" << beta[i][j] << " ";
-          }
-          //beta[i][j] = 2*x-pow(x,2);
-           //beta[i][j] = 8*pow(x,3) - 17 * pow(x,2) + 10;
-           beta[i][j] = 1-1/1000/x;
-
-        }
-    }
-
-
-
-  /*  for (int z=0; z < sizeX; z++){
-       tabl_n[200][100] = 0.5;
-       int f = 20;
-       tabl_n[z][(int)(100-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;        // parabole
-    }*/
-
-
-    //Source
-   for (int z=0; z < sizeY; z++){
-      tabl_n[45][z] = 0.5;
-  }
 
     //parabole();
     //diag();
-    source_Centre();
-
+    //source_Centre();
+    Diffraction();
+    //fente();
 
     // iteration
     for (int i = 1; i <= 1200;i++){
@@ -328,7 +366,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       for (int k = 0; k < sizeX; k++){
         for (int j = 0; j < sizeY; j++){
           if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-            image.set(j,k,(unsigned char) (3*(tabl_rho[k][j]/rho_max) *  33 + 164));
+            image.set(j,k,(unsigned char) (alpha * (tabl_rho[k][j]/rho_max) *  33 + 164));
           }
         }
       }
