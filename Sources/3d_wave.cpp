@@ -13,27 +13,82 @@ using namespace std;
                     */
 
 
-const int sizeX = 10;
-const int sizeY = 10;
-const int sizeZ = 10;
+const int sizeX = 100;
+const int sizeY = 200;
+const int sizeZ = 500;
 const int q = 6;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
 const double size_c = 40;
-double beta[sizeX][sizeY][sizeZ];
+//double beta[sizeX][sizeY][sizeZ];
 double rho_max;
 
-typedef double type_F[sizeX][sizeY][sizeZ][q+1];
-typedef double type_coeff_reffrac[sizeX][sizeY][sizeZ];
+typedef double ****type_F;
+typedef double ***type_coeff_reffrac;
 typedef double vecteur[3];
-type_F f_in = {{{{0}}}};
+type_F f_in;
+type_F f_out;
 type_coeff_reffrac tabl_n;
+type_coeff_reffrac beta;
 
 
 
 
+void allocate(){
+
+
+  f_in = (double ****) malloc (sizeof(double ****)*sizeX);
+  for (int i = 0; i < sizeX; i++){
+    f_in[i] = (double ***) malloc(sizeof(double **)*sizeY);
+    for (int j = 0; j < sizeY; j++){
+      f_in[i][j] = (double **) malloc(sizeof(double *)* sizeZ);
+      for (int z = 0; z < sizeZ; z++){
+        f_in[i][j][z] = (double *) malloc(sizeof(double)* q+1);
+      }
+    }
+  }
+
+  f_out = (double ****) malloc (sizeof(double ****)*sizeX);
+  for (int i = 0; i < sizeX; i++){
+    f_out[i] = (double ***) malloc(sizeof(double **)*sizeY);
+    for (int j = 0; j < sizeY; j++){
+      f_out[i][j] = (double **) malloc(sizeof(double *)* sizeZ);
+      for (int z = 0; z < sizeZ; z++){
+        f_out[i][j][z] = (double *) malloc(sizeof(double)* q+1);
+      }
+    }
+  }
+
+  tabl_n = (double***)malloc(sizeX * sizeof(double **));
+  for (int index = 0;index < sizeX; index++){
+    tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
+    for (int i = 0; i < sizeY;i++){
+      tabl_n[index][i] = (double *)malloc(sizeZ*sizeof(double));
+    }
+  }
+
+  beta = (double***)malloc(sizeX * sizeof(double **));
+  for (int index = 0;index < sizeX; index++){
+    beta[index] = (double **)malloc(sizeY*sizeof(double*));
+    for (int i = 0; i < sizeY;i++){
+      beta[index][i] = (double *)malloc(sizeZ*sizeof(double));
+    }
+  }
+
+}
+
+void define_fin(type_F x){
+  for (int i = 0; i < sizeX; i++){
+    for (int j = 0; j < sizeY; j++){
+      for (int z = 0; z < sizeZ; z++){
+        for (int k = 0; k < q+1; k++)
+        x[i][j][z][k] = 0;
+      }
+    }
+  }
+}
 
 double vectors_prod(vecteur x,vecteur y)
 {
@@ -158,7 +213,6 @@ void afficher(type_F matrix, int z) { //Fonction pour afficher une matrice
 
 
 void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f_in, int iteration){
-  type_F f_out;
   double rho;
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
@@ -213,6 +267,8 @@ void defmatrix(type_coeff_reffrac n){
 
 
 int main( int argc, char **argv ) {
+  allocate();
+  define_fin(f_in);
   defmatrix(tabl_n);
   defmatrix(beta);
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
