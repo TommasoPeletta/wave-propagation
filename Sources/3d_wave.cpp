@@ -24,6 +24,7 @@ const double pi = 3.14159265358979323846;
 const double size_c = 40;
 //double beta[sizeX][sizeY][sizeZ];
 double rho_max;
+double Ampl_max;
 
 typedef double ****type_F;
 typedef double ***type_coeff_reffrac;
@@ -32,6 +33,8 @@ type_F f_in;
 type_F f_out;
 type_coeff_reffrac tabl_n;
 type_coeff_reffrac beta;
+type_coeff_reffrac tabl_amplitude;
+type_coeff_reffrac tabl_rho;
 
 
 
@@ -74,6 +77,23 @@ void allocate(){
     beta[index] = (double **)malloc(sizeY*sizeof(double*));
     for (int i = 0; i < sizeY;i++){
       beta[index][i] = (double *)malloc(sizeZ*sizeof(double));
+    }
+  }
+
+
+  tabl_amplitude = (double***)malloc(sizeX * sizeof(double **));
+  for (int index = 0;index < sizeX; index++){
+    tabl_amplitude[index] = (double **)malloc(sizeY*sizeof(double*));
+    for (int i = 0; i < sizeY;i++){
+      tabl_amplitude[index][i] = (double *)malloc(sizeZ*sizeof(double));
+    }
+  }
+
+  tabl_rho = (double***)malloc(sizeX * sizeof(double **));
+  for (int index = 0;index < sizeX; index++){
+    tabl_rho[index] = (double **)malloc(sizeY*sizeof(double*));
+    for (int i = 0; i < sizeY;i++){
+      tabl_rho[index][i] = (double *)malloc(sizeZ*sizeof(double));
     }
   }
 
@@ -210,6 +230,19 @@ void afficher(type_F matrix, int z) { //Fonction pour afficher une matrice
 }
 
 
+void AmplitudeComputation(){
+  for (int x = 0; x < sizeX; x++){
+    for (int y = 0; y < sizeY; y++){
+      for (int z = 0; z < sizeZ; z++){
+        if(abs(tabl_rho[x][y][z])> tabl_amplitude[x][y][z]){
+          tabl_amplitude[x][y][z] = abs(tabl_rho[x][y][z]);
+          if(Ampl_max < tabl_amplitude[x][y][z]){Ampl_max = tabl_amplitude[x][y][z];}
+        }
+      }
+    }
+  }
+
+}
 
 
 void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f_in, int iteration){
@@ -219,7 +252,8 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
       for (int z = 0; z < sizeZ; z++){
         if (n[i][j][z]>=1) {
           rho = rhoComputation(f_in,i,j,z);
-          if (abs(rho)>rho_max){
+          tabl_rho[i][j][z] = rho;
+          if (abs(rho)>rho_max && iteration == 3){
             rho_max = rho;
           }
           vecteur j_sum;
@@ -245,7 +279,13 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
           }
         } else {    //reflecting surfaces represented by a negative refraction coefficient
           for (int k = 0; k < q+1; k++){
-            f_out[i][j][z][k] = -f_in[i][j][z][k];
+            f_out[i][j][z][0] = -f_in[i][j][z][0] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][1] = -f_in[i][j][z][3] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][2] = -f_in[i][j][z][4] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][3] = -f_in[i][j][z][1] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][4] = -f_in[i][j][z][2] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][5] = -f_in[i][j][z][6] * abs(tabl_n[i][j][z]);
+            f_out[i][j][z][6] = -f_in[i][j][z][5] * abs(tabl_n[i][j][z]);
           }
         }
       }
