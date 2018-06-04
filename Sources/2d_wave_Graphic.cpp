@@ -16,8 +16,8 @@ Matrix<unsigned char> image;
 GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
-const int sizeX = 410;
-const int sizeY = 510;
+const int sizeX = 400;
+const int sizeY = 500;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -320,14 +320,15 @@ void fill_space(type_coeff_reffrac matrix, double in) {
          for (int y=0; y < sizeY ; y++){
            //if(y<250 and y>150){
 
-           if(y<sqrt(pow(250,2) - pow(z-200,2)) and y>sqrt(pow(250,2) - pow(z-200,2))-150){
+           if(y<sqrt(pow(250,2) - pow(z-200,2)) and y>-sqrt(pow(250,2) - pow(z-200,2))+300){
 
-             tabl_n[z][y] = 1.2;
+             tabl_n[z][y] = 1.4;
              //tabl_amplitude[z][y] = 10;
            }
          }
          //tabl_n[z][z+100] = -1;
        }
+       alpha = 1;
   }
 
 
@@ -385,8 +386,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     //parabole();
     //diag();
     //source_Centre();
-    //lentille();
-    Diffraction();
+    lentille();
+    //Diffraction();
     //fente();
 
     // iteration
@@ -407,12 +408,12 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       window.drawMatrix(image);
 
 
-      if(i>1200){
+      if(i>700){
         AmplitudeComputation();
         for (int k = 0; k < sizeX; k++){
           for (int j = 0; j < sizeY; j++){
             if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-              image_Amp.set(j,k,(unsigned char) ((tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
+              image_Amp.set(j,k,(unsigned char) (5*(tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
             }
           }
         }
