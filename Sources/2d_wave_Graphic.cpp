@@ -13,6 +13,8 @@ using namespace std;
 
 GraphicsInterface window;
 Matrix<unsigned char> image;
+GraphicsInterface window_Amp;
+Matrix<unsigned char> image_Amp;
 
 const int sizeX = 400;
 const int sizeY = 500;
@@ -24,6 +26,7 @@ const double pi = 3.14159265358979323846;
 const double size_c = 40;
 double beta[sizeX][sizeY];
 double rho_max;
+double Ampl_max;
 
 typedef double type_F[sizeX][sizeY][q+1];
 typedef double type_coeff_reffrac[sizeX][sizeY];
@@ -31,6 +34,7 @@ typedef double vecteur[2];
 type_F f_in = {{{0}}};
 type_coeff_reffrac tabl_n;
 type_coeff_reffrac tabl_rho;
+type_coeff_reffrac tabl_amplitude;
 
 
 
@@ -143,7 +147,17 @@ void afficher(type_F matrix) {
   cout << endl;
 }
 
+void AmplitudeComputation(){
+  for (int x = 0; x < sizeX; x++){
+    for (int y = 0; y < sizeY; y++){
+      if(abs(tabl_rho[x][y])> tabl_amplitude[x][y]){
+        tabl_amplitude[x][y] = abs(tabl_rho[x][y]);
+        if(Ampl_max < tabl_amplitude[x][y]){Ampl_max = tabl_amplitude[x][y];}
+      }
+    }
+  }
 
+}
 
 
 
@@ -174,12 +188,12 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
           }
         }
       } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
-        double Amplitude = 100;
+        double Ampl = 100;
         double phase = 0;
         double facteur = 0.04;
         double frequence = 2*pow(10,5);
         for (int k = 0; k<=q ; k++){
-          f_out[i][j][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
+          f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
         }
       } else {
         f_out[i][j][0] = -f_in[i][j][0];
@@ -258,13 +272,34 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       tabl_n[sizeX/2][sizeY/2] = 0.5;
   }
 
+  void lentille(){
+      fill_space(tabl_n,1);
+      for (int z=0; z < sizeX; z++){
+         tabl_n[z][40] = 0.5;
+         for (int y=0; y < sizeY ; y++){
+           //if(y<250 and y>150){
+
+           if(y<sqrt(pow(250,2) - pow(z-200,2)) and y>sqrt(pow(250,2) - pow(z-200,2))-150){
+
+             tabl_n[z][y] = 1.2;
+             //tabl_amplitude[z][y] = 10;
+           }
+         }
+         //tabl_n[z][z+100] = -1;
+       }
+  }
+
 
 
   int main( int argc, char **argv ) {
 
-
+    window_Amp.open(sizeY,sizeX);
+    image_Amp.setDimension(sizeY,sizeX);
     window.open(sizeY,sizeX);
     image.setDimension(sizeY,sizeX);
+
+
+    fill_space(tabl_amplitude,0);
 
     fill_space(tabl_n,1);
     fill_matrix_n_in(tabl_n,100,50,250,50,-1);
@@ -293,19 +328,11 @@ void fill_space(type_coeff_reffrac matrix, double in) {
             //cout << "beta" << beta[i][j] << " ";
           }
           //beta[i][j] = 2*x-pow(x,2);
-           //beta[i][j] = 8*pow(x,3) - 17 * pow(x,2) + 10;
            beta[i][j] = 1-1/1000/x;
 
         }
     }
 
-
-
-  /*  for (int z=0; z < sizeX; z++){
-       tabl_n[200][100] = 0.5;
-       int f = 20;
-       tabl_n[z][(int)(100-f + (1.0/(4*f))*(pow((z-200),2)))] = -1;        // parabole
-    }*/
 
 
     //Source
@@ -315,11 +342,12 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
     //parabole();
     //diag();
-    source_Centre();
+    //source_Centre();
+    lentille();
 
 
     // iteration
-    for (int i = 1; i <= 1200;i++){
+    for (int i = 1; i <= 2500;i++){
 
 
       //rho_max = 0;
@@ -328,14 +356,28 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       for (int k = 0; k < sizeX; k++){
         for (int j = 0; j < sizeY; j++){
           if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-            image.set(j,k,(unsigned char) (3*(tabl_rho[k][j]/rho_max) *  33 + 164));
+            image.set(j,k,(unsigned char) ((tabl_rho[k][j]/rho_max) *  33 + 164));
           }
         }
       }
 
       window.drawMatrix(image);
+
+
+      if(i>1200){
+        AmplitudeComputation();
+        for (int k = 0; k < sizeX; k++){
+          for (int j = 0; j < sizeY; j++){
+            if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
+              image_Amp.set(j,k,(unsigned char) ((tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
+            }
+          }
+        }
+      }
+      window_Amp.drawMatrix(image_Amp);
     }
     window.close();
+    window_Amp.close();
     return 0;
 
 }
