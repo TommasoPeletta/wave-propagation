@@ -1,19 +1,17 @@
-# OBJS specifies which files to compile as part of the project
-OBJS = main.cpp
+ac1d: ac1d.cc
+	g++ -O3  -o ac1d -I$(HOME)/SpcTools/Include ac1d.cc -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib -lMisc -lGI -lX11
 
-# CC specifies which compiler we're using
-CC = g++ -std=c++11
+spin: spin.cc
+	g++ -O3  -o spin -I$(HOME)/SpcTools/Include spin.cc -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib -lMisc -lGI -lX11
 
-# COMPILER_FLAGS specifies the additional compilation options we're using
-# -Wall will turn on all standard warnings
-COMPILER_FLAGS = -Wall
+parity: parity.cc
+	g++ -O3  -o parity -I$(HOME)/SpcTools/Include parity.cc -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib -lMisc -lGI -lX11
 
-# LINKER_FLAGS specifies the libraries we're linking against
-LINKER_FLAGS = -lGL -lGLU -lglut -lGLEW -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor
+plotExple: plotExple.cc
+	g++ -O3  -o plotExple -I$(HOME)/SpcTools/Include plotExple.cc -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib  -lGI -lMisc -lX11
 
-# OBJ_NAME specifies the name of our exectuable
-OBJ_NAME = main
+wave: 2d_wave_Graphic.cpp
+	g++ -O3  -o wave -I$(HOME)/SpcTools/Include 2d_wave_Graphic.cpp -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib  -lGI -lMisc -lX11
 
-#This is the target that compiles our executable
-all: $(OBJS)
-	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OBJ_NAME)
+clean:
+	rm ac1d parity  plotExple spin wave
