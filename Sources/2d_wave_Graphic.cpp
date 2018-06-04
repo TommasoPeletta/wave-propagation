@@ -14,8 +14,8 @@ using namespace std;
 GraphicsInterface window;
 Matrix<unsigned char> image;
 
-const int sizeX = 400;
-const int sizeY = 500;
+const int sizeX = 411;
+const int sizeY = 511;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
