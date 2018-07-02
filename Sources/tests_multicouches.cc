@@ -8,8 +8,8 @@
 using std::vector;
 using namespace std;
 
-//Pour lancer le code : make wave
-//                      ./wave
+//Pour lancer le code : make multilayers
+//                      ./multilayers
 
 GraphicsInterface window;
 Matrix<unsigned char> image;
@@ -17,7 +17,7 @@ GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
 const int sizeX = 400;
-const int sizeY = 500;
+const int sizeY = 1000;
 const int q = 4;
 const double deltaX = 75;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -248,9 +248,13 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
         double Ampl = 100;
         double phase = 0;
-        double frequence = 2*pow(10,5);
+        double frequence = 3*pow(10,8)/600;
         for (int k = 0; k<=q ; k++){
-          f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
+          if(iteration < 500){
+            f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
+          } else {
+            f_out[i][j][k] = 0;
+          }
         }
       } else {
         f_out[i][j][0] = -f_in[i][j][0] * abs(tabl_n[i][j]);
@@ -413,13 +417,31 @@ void fill_space(type_coeff_reffrac matrix, double in) {
         tabl_n[z][303] = -0.1 ;
         tabl_n[z][304] = -0.1;
       }
-      for (int z= 0; z<4;z++){
+      for (int z= 0; z<2;z++){
         for (int y =0;y <5;y++){
         tabl_n[200+d+z][300+y]  = 1;
         tabl_n[200-d-z][300+y]  = 1;
       }
       }
       alpha = 200;
+    }
+
+    void multicouche(){
+        fill_space(tabl_n,1);
+        for (int z=0; z < sizeX; z++){
+           tabl_n[z][80] = 0.5;
+           for (int n=0; n < 4 ; n++){
+             for (int e = 0 ; e<33; e++){
+               tabl_n[z][100+66*n+e] = 1.55;
+               tabl_n[z][133+66*n+e] = 1.6;
+             }
+             //if(y<250 and y>150){
+
+
+           }
+           //tabl_n[z][z+100] = -1;
+         }
+         alpha = 1;
     }
 
 
@@ -444,10 +466,11 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
     //parabole();
     //diag();
-    source_Centre();
+    //source_Centre();
     //lentille();
     //Diffraction();
-    fente();
+    //fente();
+    multicouche();
 
     // iteration
     for (int i = 1; i <= 1100;i++){

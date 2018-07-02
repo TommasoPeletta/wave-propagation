@@ -13,5 +13,8 @@ plotExple: plotExple.cc
 wave: 2d_wave_Graphic.cpp
 	g++ -O3  -o wave -I$(HOME)/SpcTools/Include 2d_wave_Graphic.cpp -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib  -lGI -lMisc -lX11
 
+multilayers: tests_multicouches.cc
+	g++ -O3  -o multilayers -I$(HOME)/SpcTools/Include  tests_multicouches.cc -L$(HOME)/SpcTools/Lib -L/usr/X11R6/lib  -lGI -lMisc -lX11
+
 clean:
-	rm ac1d parity  plotExple spin wave
+	rm ac1d parity  plotExple spin wave multicouches
