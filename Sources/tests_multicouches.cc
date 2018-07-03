@@ -19,7 +19,7 @@ Matrix<unsigned char> image_Amp;
 const int sizeX = 400;
 const int sizeY = 1000;
 const int q = 4;
-const double deltaX = 75;
+const double deltaX = 1;
 const double v = pow((q/2),1/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
@@ -161,6 +161,8 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
                       break;
             case 2 : if (i != 0) {
                         f_in[i-1][j][k] = beta[i][j] * f_out[i][j][k];
+                      } else {
+                        f_in[sizeX-1][j][k] = beta[i][j] * f_out[i][j][k];
                       }
                       break;
             case 3 : if (j != 0) {
@@ -169,6 +171,8 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
                     break;
             case 4 : if (i != (sizeX-1)) {
                       f_in[i+1][j][k] =beta[i][j] * f_out[i][j][k];
+                    } else {
+                      f_in[0][j][k] = beta[i][j] * f_out[i][j][k];
                     }
                     break;
           }
@@ -228,7 +232,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       if (n[i][j]>=1) {
         rho = rhoComputation(f_in,i,j);
         tabl_rho[i][j] = rho;
-        if (abs(rho)>rho_max && iteration == 3){
+        if (abs(rho)>rho_max && iteration == 10){
           rho_max = rho;
         }
         vecteur j_sum;
@@ -250,11 +254,11 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
         double phase = 0;
         double frequence = 3*pow(10,8)/600;
         for (int k = 0; k<=q ; k++){
-          if(iteration < 500){
+          //if(iteration < 500){
             f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
-          } else {
-            f_out[i][j][k] = 0;
-          }
+          //} else {
+          //  f_out[i][j][k] = 0;
+          //}
         }
       } else {
         f_out[i][j][0] = -f_in[i][j][0] * abs(tabl_n[i][j]);
@@ -300,17 +304,18 @@ void fill_matrix_n_in(type_coeff_reffrac matrix, int startY, int width,int start
 void beta_initialization(){
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
-      if(i==0 or j==0 or i == sizeX-1 or j == sizeY-1){
+      if(/*i==0 or i == sizeX-1 or */j==0 or j == sizeY-1){
         beta[i][j] = 0;
         break;
       }
         double x = 1;
+        /*
         if (i<size_c and i < j and i < sizeY - j) {
           x =  1 - (size_c - i)/size_c;
 
         } else if (sizeX - i < size_c  and sizeX - i < j and sizeX - i < sizeY - j){
           x = 1 - (size_c - (sizeX - i)) / size_c;
-        } else if (sizeY - j < size_c ){
+        } else */if (sizeY - j < size_c ){
           x = 1 - (size_c - (sizeY - j)) / size_c;
         } else if (j < size_c ){
           x = 1 - (size_c - j) / size_c;
@@ -427,19 +432,34 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     }
 
     void multicouche(){
+
+        double na = 1.55;   //first refraction indice
+        double nb = 1.6;    // second refraction indice
+        double d = 250;     //size of two layers (a and b)
+        int nl = 3;         // number of double layers
         fill_space(tabl_n,1);
         for (int z=0; z < sizeX; z++){
-           tabl_n[z][80] = 0.5;
-           for (int n=0; n < 4 ; n++){
-             for (int e = 0 ; e<33; e++){
-               tabl_n[z][100+66*n+e] = 1.55;
-               tabl_n[z][133+66*n+e] = 1.6;
+           tabl_n[z][50] = 0.5;
+           for (int n=0; n < nl ; n++){
+             for (int e = 0 ; e<d/deltaX; e++){
+               if(e<(d/(1 + na/nb)/deltaX)){
+                 tabl_n[z][150+(int)(d/deltaX)*n+e] = na;
+               }else{
+                 tabl_n[z][150+(int)(d/deltaX)*n+e] = nb;
+               }
              }
              //if(y<250 and y>150){
 
 
            }
            //tabl_n[z][z+100] = -1;
+         }
+         cout << "d : "<< d/deltaX << "\n";
+         cout << "da : "<< d/(1 + na/nb)/deltaX << "\n";
+         cout << "db : "<< d/(1 + nb/na)/deltaX << "\n";
+
+         for (int y = 0; y <sizeY; y ++){
+           cout << y << " : "<< tabl_n[100][y] << "\n";
          }
          alpha = 1;
     }
@@ -459,7 +479,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
     //fill_matrix_n_in(tabl_n,100,50,250,50,-1);
     //fill_matrix_n_in(tabl_n,300,50,250,50,-1);
-    fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.95 , 1);
+    //fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.95 , 1);
+    fill_matrix_n(beta,size_c,sizeY - (2*size_c),0,sizeX, 0.95 , 1);
     //beta_initialization();
 
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
