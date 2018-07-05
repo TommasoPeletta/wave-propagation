@@ -16,8 +16,8 @@ Matrix<unsigned char> image;
 GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
-const int sizeX = 400;
-const int sizeY = 1000;
+const int sizeX = 1;
+const int sizeY = 2000;
 const int q = 4;
 const double deltaX = 1;
 const double v = pow((q/2),1/2)*3*pow(10,8);
@@ -27,6 +27,8 @@ const double size_c = 40;
 //double beta[sizeX][sizeY];
 double rho_max;
 double Ampl_max;
+double lambda = 600; // longueur d'onde passée en argument
+
 
 int alpha; //affichage
 typedef double ***type_F;
@@ -232,7 +234,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       if (n[i][j]>=1) {
         rho = rhoComputation(f_in,i,j);
         tabl_rho[i][j] = rho;
-        if (abs(rho)>rho_max && iteration == 10){
+        if (abs(rho)>rho_max && iteration == 300){
           rho_max = rho;
         }
         vecteur j_sum;
@@ -252,7 +254,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
         double Ampl = 100;
         double phase = 0;
-        double frequence = 3*pow(10,8)/600;
+        double frequence = 3*pow(10,8)/lambda;
         for (int k = 0; k<=q ; k++){
           //if(iteration < 500){
             f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
@@ -433,44 +435,54 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
     void multicouche(){
 
-        double na = 1.55;   //first refraction indice
+        double na = 1.00;   //first refraction indice
         double nb = 1.6;    // second refraction indice
         double d = 250;     //size of two layers (a and b)
-        int nl = 3;         // number of double layers
+        int nl = 5;         // number of double layers
+
         fill_space(tabl_n,1);
         for (int z=0; z < sizeX; z++){
            tabl_n[z][50] = 0.5;
+           ///*
            for (int n=0; n < nl ; n++){
              for (int e = 0 ; e<d/deltaX; e++){
-               if(e<(d/(1 + na/nb)/deltaX)){
-                 tabl_n[z][150+(int)(d/deltaX)*n+e] = na;
+               if(e<(d/(1 + na/nb)/deltaX)+0.5){
+                 tabl_n[z][650+(int)(d/deltaX)*n+e] = na;
                }else{
-                 tabl_n[z][150+(int)(d/deltaX)*n+e] = nb;
+                 tabl_n[z][650+(int)(d/deltaX)*n+e] = nb;
                }
              }
              //if(y<250 and y>150){
 
 
            }
+           //*/
            //tabl_n[z][z+100] = -1;
          }
          cout << "d : "<< d/deltaX << "\n";
          cout << "da : "<< d/(1 + na/nb)/deltaX << "\n";
          cout << "db : "<< d/(1 + nb/na)/deltaX << "\n";
 
-         for (int y = 0; y <sizeY; y ++){
+         /*for (int y = 0; y <sizeY; y ++){
            cout << y << " : "<< tabl_n[100][y] << "\n";
-         }
+         }*/
          alpha = 1;
     }
 
 
   int main( int argc, char **argv ) {
+    if (argc > 1){
+      lambda =atof(argv[1]);
+    }
 
-    window_Amp.open(sizeY,sizeX);
-    image_Amp.setDimension(sizeY,sizeX);
-    window.open(sizeY,sizeX);
-    image.setDimension(sizeY,sizeX);
+    //window_Amp.open(sizeY,sizeX);
+    //image_Amp.setDimension(sizeY,sizeX);
+
+    //window.open(sizeY,sizeX);
+    //image.setDimension(sizeY,sizeX);
+
+    window.open((int)(sizeY/4),sizeX);
+    image.setDimension((int)(sizeY/4),sizeX);
 
     allocate();
     define_fin(f_in);
@@ -494,20 +506,61 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     multicouche();
 
     // iteration
-    for (int i = 1; i <= 1100;i++){
+    double ampl_incident = 0;
+    double ampl1 = 0;
+    double nb1 = 0;
+    double ampl2 = 0;
+    double nb2 = 0;
+
+
+    for (int i = 1; i <= 10000;i++){
 
       //rho_max = 0;
       foutComputation(tabl_n,v,vi,f_in,i);
       for (int k = 0; k < sizeX; k++){
-        for (int j = 0; j < sizeY; j++){
-          if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-            image.set(j,k,(unsigned char) (alpha * (tabl_rho[k][j]/rho_max) *  33 + 164));
+        for (int j = 0; j < (int)(sizeY/4); j++){
+          if (tabl_n[k][4*j]<0){image.set(j,k,(unsigned char) (1));}else{
+            image.set(j,k,(unsigned char) (alpha * (tabl_rho[k][4*j]/rho_max) *  33 + 164));
           }
         }
       }
 
+
       window.drawMatrix(image);
 
+
+
+      double m = 0;
+      int my = 0;
+      for (int y = 0 ; y < 599 ; y++){
+
+        if(abs(tabl_rho[0][51+y])>m){
+          m = abs(tabl_rho[0][51+y]);
+          my = y;
+        }
+      }
+      if(m>ampl1){
+      if(nb1 > 5){
+        cout << ampl1 << " : " << nb1 << "         y = " << my << "    iteration : " << i << "\n";
+      }
+      ampl1 = m;
+      nb1 = 0;
+      }
+
+      nb1 = nb1 + 1;
+
+      if(abs(tabl_rho[0][1400])>ampl2){
+        if(nb2 > 5){
+          cout <<"                              " << ampl2 << " : " << nb2 << "\n";
+        }
+        ampl2 = abs(tabl_rho[0][1400]);
+        nb2 = 1;
+      }else{
+        nb2 = nb2 + 1;
+      }
+
+      window.drawMatrix(image);
+      if(i == 600){ampl_incident = ampl1;}
 
       /*if(i>1200){
         AmplitudeComputation();
@@ -523,6 +576,10 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     }
     window.close();
     //window_Amp.close();
+
+    cout << ampl1 << " : " << nb1 << "\n";
+    cout <<"                              " << ampl2 << " : " << nb2 << "\n";
+    cout << "reflexivité : " << ampl1/ampl_incident - 1 << "\n";
     return 0;
 
 }
