@@ -509,8 +509,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     double ampl_incident = 0;
     double ampl1 = 0;
     double nb1 = 0;
+    double hit = 0;
     double ampl2 = 0;
-    double nb2 = 0;
 
 
     for (int i = 1; i <= 10000;i++){
@@ -540,23 +540,18 @@ void fill_space(type_coeff_reffrac matrix, double in) {
         }
       }
       if(m>ampl1){
-      if(nb1 > 5){
-        cout << ampl1 << " : " << nb1 << "         y = " << my << "    iteration : " << i << "\n";
-      }
-      ampl1 = m;
-      nb1 = 0;
-      }
+        if(nb1 > 5){
+          cout << ampl1 << " : " << nb1 << "  hit : " << hit << "    y = " << my << "    iteration : " << i << "\n";
+        }
+        ampl1 = m;
+        nb1 = 0;
+        hit = 0;
+      }else if (m = ampl1){hit = hit + 1;}
 
       nb1 = nb1 + 1;
 
       if(abs(tabl_rho[0][1400])>ampl2){
-        if(nb2 > 5){
-          cout <<"                              " << ampl2 << " : " << nb2 << "\n";
-        }
         ampl2 = abs(tabl_rho[0][1400]);
-        nb2 = 1;
-      }else{
-        nb2 = nb2 + 1;
       }
 
       window.drawMatrix(image);
@@ -577,8 +572,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     window.close();
     //window_Amp.close();
 
-    cout << ampl1 << " : " << nb1 << "\n";
-    cout <<"                              " << ampl2 << " : " << nb2 << "\n";
+    cout << ampl1 << " : " << nb1 << "  hit : " << hit << "\n";
+    cout <<"                              " << ampl2  << "\n";
     cout << "reflexivité : " << ampl1/ampl_incident - 1 << "\n";
     return 0;
 
