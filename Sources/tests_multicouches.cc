@@ -21,7 +21,7 @@ const int sizeX = 1;
 const int sizeY = 4000;
 const int q = 4;
 const double deltaX = 0.5;
-const double v = pow((q/2),1/2)*3*pow(10,8);
+const double v = sqrt(q/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
 const double size_c = 40;
@@ -100,8 +100,7 @@ void define_fin(type_F f){
 }
 
 
-double vectors_prod(vecteur x,vecteur y)
-{
+double vectors_prod(vecteur x,vecteur y) {
     double res = 0.0;
     int i;
     for (i = 0; i < 2; i++)
@@ -182,7 +181,7 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
         }
       }
     }
-}
+  }
 
 
 
@@ -256,6 +255,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
         double Ampl = 100;
         double phase = 0;
         double frequence = 3*pow(10,8)/lambda;
+
         for (int k = 0; k<=q ; k++){
           //if(iteration < 500){
             f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
@@ -336,10 +336,10 @@ void beta_initialization(){
 void fill_space(type_coeff_reffrac matrix, double in) {
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
-        matrix[x][y] = in;
-      }
+      matrix[x][y] = in;
     }
   }
+}
 
 
 
@@ -358,9 +358,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
      alpha = 3;
   }
 
-
-
-
   void diag(){
       fill_space(tabl_n,1);
       for (int z=0; z < sizeX; z++){
@@ -372,9 +369,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
        }
        alpha = 1;
   }
-
-
-
 
   void source_Centre(){
       fill_space(tabl_n,1);
@@ -399,7 +393,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
        }
        alpha = 1;
   }
-
 
   void Diffraction(){
     fill_space(tabl_n,1);
@@ -434,12 +427,13 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       alpha = 200;
     }
 
-    void multicouche(){
 
-        double na = 1;   //first refraction indice
-        double nb = 1.6;    // second refraction indice
-        double d = 250;     //size of two layers (a and b)
-        int nl = 5;         // number of double layers
+  void multicouche(){
+
+        double na = 12;   //first refraction indice
+        double nb = 12;    // second refraction indice
+        double d = 125;     //size of two layers (a and b)
+        int nl = 1;         // number of double layers
 
         fill_space(tabl_n,1);
         for (int z=0; z < sizeX; z++){
@@ -468,7 +462,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
            cout << y << " : "<< tabl_n[100][y] << "\n";
          }*/
          alpha = 1;
-    }
+  }
 
 
   int main( int argc, char **argv ) {
@@ -535,7 +529,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       }
 
 
-      window.drawMatrix(image);
+      //window.drawMatrix(image);
 
 
 
