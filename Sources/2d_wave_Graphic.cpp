@@ -16,10 +16,10 @@ Matrix<unsigned char> image;
 GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
-const int sizeX = 400;
-const int sizeY = 500;
+const int sizeX = 500;
+const int sizeY = 600;
 const int q = 4;
-const double deltaX = 75;
+const double deltaX = 5*pow(10,-9);
 const double v = pow((q/2),1/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
@@ -40,7 +40,7 @@ type_coeff_reffrac tabl_amplitude;
 type_coeff_reffrac beta;
 
 
-
+// Allocation of the different matrix which be use by the program.
 void allocate(){
   //allocation f_in
   f_in = (double***)malloc(sizeX * sizeof(double **));
@@ -100,8 +100,7 @@ void define_fin(type_F f){
 double vectors_prod(vecteur x,vecteur y)
 {
     double res = 0.0;
-    int i;
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         res += x[i] * y[i];
     }
@@ -119,15 +118,11 @@ void scalar_prod(vecteur x, double y){
 
 
 
-
-
 void vector_sum(vecteur x, vecteur y){
   for (int i = 0; i < 2; i++){
     x[i] = x[i] + y[i];
   }
 }
-
-
 
 
 
@@ -144,11 +139,7 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
 }
 
 
-
-
-
-
-  void vector_cpy(type_F f_out, type_F f_in){
+void vector_cpy(type_F f_out, type_F f_in){
     for (int i = 0; i < sizeX; i++){
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < q+1; k++){
@@ -161,6 +152,8 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
                       break;
             case 2 : if (i != 0) {
                         f_in[i-1][j][k] = beta[i][j] * f_out[i][j][k];
+                      }else{
+                        f_in[sizeX-1][j][k] = beta[i][j] * f_out[i][j][k];
                       }
                       break;
             case 3 : if (j != 0) {
@@ -169,6 +162,8 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
                     break;
             case 4 : if (i != (sizeX-1)) {
                       f_in[i+1][j][k] =beta[i][j] * f_out[i][j][k];
+                    }else{
+                      f_in[0][j][k] = beta[i][j] * f_out[i][j][k];
                     }
                     break;
           }
@@ -176,9 +171,6 @@ void jComputation(vecteur res,double vi[q+1][2], type_F f_in ,int x ,int y){
       }
     }
 }
-
-
-
 
 
 
@@ -192,13 +184,21 @@ double rhoComputation(type_F matrix, int i, int j) {
 }
 
 
-
-
-
 void afficher(type_F matrix) {
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
       double r = rhoComputation(matrix,x,y);
+      cout << r << "    ";
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+
+void afficher2D(type_coeff_reffrac matrix) {
+  for (int x = 0; x < sizeX; x++){
+    for (int y = 0; y < sizeY; y++){
+      double r = matrix[x][y];
       cout << r << "    ";
     }
     cout << endl;
@@ -211,11 +211,27 @@ void AmplitudeComputation(){
     for (int y = 0; y < sizeY; y++){
       if(abs(tabl_rho[x][y])> tabl_amplitude[x][y]){
         tabl_amplitude[x][y] = abs(tabl_rho[x][y]);
-        if(Ampl_max < tabl_amplitude[x][y]){Ampl_max = tabl_amplitude[x][y];}
+        if(Ampl_max < tabl_amplitude[x][y]){
+          Ampl_max = tabl_amplitude[x][y];
+        }
       }
     }
   }
 
+}
+
+// Calcule amplitude pour le calcule de la fréquence
+double AmplitudeMax(int SX, int SY, int FX, int FY){
+  double Ampl_max_freq = 0;
+  //for (int x = SX; x < FX; x++){
+    for (int y = SY; y < FY; y++){
+      if(abs(tabl_rho[sizeX/2][y])> Ampl_max_freq){
+        Ampl_max_freq = abs(tabl_rho[sizeX/2][y]);
+        }
+      }
+  //  }
+
+  return Ampl_max_freq;
 }
 
 
@@ -228,10 +244,10 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
       if (n[i][j]>=1) {
         rho = rhoComputation(f_in,i,j);
         tabl_rho[i][j] = rho;
-        if (abs(rho)>rho_max && iteration == 3){
+        if (abs(rho)>rho_max && iteration == 10){
           rho_max = rho;
         }
-        vecteur j_sum;
+        vecteur j_sum = {0,0};
         jComputation(j_sum,vi,f_in,i,j);
 
         for (int k = 0; k < q+1; k++){
@@ -245,10 +261,11 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
             f_out[i][j][k] = 2*(pow(n[i][j],2) - 1)/(pow(n[i][j],2)) * rho - f_in[i][j][k];
           }
         }
-      } else if(n[i][j]>0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
-        double Ampl = 100;
+      } else if(n[i][j]>0 &&  n[i][j]<1){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
+        double Ampl = 0.01;
+        double lambda = 760; //nanomètre
         double phase = 0;
-        double frequence = 2*pow(10,5);
+        double frequence = 3*pow(10,17)/lambda;
         for (int k = 0; k<=q ; k++){
           f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
         }
@@ -269,7 +286,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
 
 
 
-
+// Rempli à l'intérieur et à l'extérieur
 void fill_matrix_n(type_coeff_reffrac matrix, int startY, int width,int startX, int height, double out, double in) {
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
@@ -281,7 +298,7 @@ void fill_matrix_n(type_coeff_reffrac matrix, int startY, int width,int startX, 
     }
   }
 }
-
+//Rempli à l'intérieur
 void fill_matrix_n_in(type_coeff_reffrac matrix, int startY, int width,int startX, int height, double in) {
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
@@ -321,7 +338,7 @@ void beta_initialization(){
 }
 
 
-void fill_space(type_coeff_reffrac matrix, double in) {
+void fill_space(type_coeff_reffrac matrix, double in){
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
         matrix[x][y] = in;
@@ -331,7 +348,27 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
 
 
+void singleLayer(){
+    fill_matrix_n(tabl_n,sizeY/2,25,0,sizeX,1.00029,3);
+    for (int z=0; z < sizeX; z++){
+       tabl_n[z][50] = 0.5;
+     }
+     alpha = 1;
 
+  }
+
+  void cinqLayer(){
+    fill_space(tabl_n,1.0029);
+    for (int j = 0; j < 5; j++){
+      fill_matrix_n_in(tabl_n,sizeY/2+j*50,25,0,sizeX,1.3);
+      fill_matrix_n_in(tabl_n,sizeY/2+25+j*50,25,0,sizeX,1.7);
+    }
+    for (int z=0; z < sizeX; z++){
+       tabl_n[z][50] = 0.5;
+     }
+     alpha = 2;
+
+  }
 
   void parabole(){
       fill_space(tabl_n,1);
@@ -347,8 +384,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
   }
 
 
-
-
   void diag(){
       fill_space(tabl_n,1);
       for (int z=0; z < sizeX; z++){
@@ -360,8 +395,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
        }
        alpha = 1;
   }
-
-
 
 
   void source_Centre(){
@@ -424,39 +457,60 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
 
   int main( int argc, char **argv ) {
-
+    double Ampl_in =0;
+    double Ampl_out = 0;
     window_Amp.open(sizeY,sizeX);
     image_Amp.setDimension(sizeY,sizeX);
     window.open(sizeY,sizeX);
     image.setDimension(sizeY,sizeX);
 
     allocate();
-    define_fin(f_in);
+    define_fin(f_in); //Put every positions of the matrix equals to 0.
   //  fill_space(tabl_amplitude,0);
 
 
     //fill_matrix_n_in(tabl_n,100,50,250,50,-1);
     //fill_matrix_n_in(tabl_n,300,50,250,50,-1);
-    fill_matrix_n(beta,size_c,sizeY - (2*size_c),size_c,sizeX - (2*size_c), 0.95 , 1);
+    //fill_matrix_n(beta,size_c,sizeY - 2*size_c,size_c,sizeX - 2*size_c, 0.95 , 1);
+    fill_matrix_n(beta,size_c,sizeY - (2*size_c),0,sizeX, 0.9 , 1);
     //beta_initialization();
 
     double vi[q+1][2] = {{0,0},{v,0},{0,v},{-v,0},{0,-v}};
 
     //parabole();
     //diag();
-    source_Centre();
+    //source_Centre();
     //lentille();
     //Diffraction();
-    fente();
+    //fente();
+    singleLayer();
+    //cinqLayer();
 
     // iteration
-    for (int i = 1; i <= 1100;i++){
-
+    for (int i = 0; i <= 1500;i++){
+      //if (i == 200){
+      //  for (int z=0; z < sizeX; z++){
+      //     tabl_n[z][50] = 1.00029;
+      //   }
+    //  }
+      if(i == 300){
+        Ampl_in = AmplitudeMax(51,51,sizeX,sizeY);
+        cout << "debut "<<AmplitudeMax(51,51,sizeX,sizeY) << endl;
+        //window.drawMatrix(image);
+      }
+      if(i == 1000){
+        Ampl_out = AmplitudeMax(0,51,sizeX,sizeY/2-1);
+        cout << "en haut "<< AmplitudeMax(0,51,sizeX,sizeY/2-1) << endl;
+        cout << "en bas " << AmplitudeMax(51,sizeY/2+50,sizeX,sizeY)<< endl;
+        //window.drawMatrix(image);
+      }
       //rho_max = 0;
       foutComputation(tabl_n,v,vi,f_in,i);
       for (int k = 0; k < sizeX; k++){
         for (int j = 0; j < sizeY; j++){
-          if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
+          if (tabl_n[k][j]<0){
+            image.set(j,k,(unsigned char) (1));
+          }else{
             image.set(j,k,(unsigned char) (alpha * (tabl_rho[k][j]/rho_max) *  33 + 164));
           }
         }
@@ -477,6 +531,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       }
       window_Amp.drawMatrix(image_Amp);*/
     }
+    cout << Ampl_out/Ampl_in;
+    //cout << pow(Ampl_out,2)/pow(Ampl_in,2);
     window.close();
     //window_Amp.close();
     return 0;
