@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include "GraphicsInterface.hh"
+#include <fstream>
 
 using std::vector;
 using namespace std;
@@ -96,9 +97,7 @@ void define_fin(type_F f){
   }
 }
 
-
-double vectors_prod(vecteur x,vecteur y)
-{
+double vectors_prod(vecteur x,vecteur y){
     double res = 0.0;
     for (int i = 0; i < 2; i++)
     {
@@ -107,16 +106,11 @@ double vectors_prod(vecteur x,vecteur y)
     return res;
 }
 
-
-
-
 void scalar_prod(vecteur x, double y){
   for (int i = 0; i < 2; i++){
     x[i] = x[i] * y;
   }
 }
-
-
 
 void vector_sum(vecteur x, vecteur y){
   for (int i = 0; i < 2; i++){
@@ -171,7 +165,6 @@ void vector_cpy(type_F f_out, type_F f_in){
       }
     }
 }
-
 
 
 double rhoComputation(type_F matrix, int i, int j) {
@@ -355,7 +348,7 @@ void singleLayer(){
      }
      alpha = 1;
 
-  }
+}
 
   void cinqLayer(){
     fill_space(tabl_n,1.0029);
@@ -383,7 +376,6 @@ void singleLayer(){
      alpha = 3;
   }
 
-
   void diag(){
       fill_space(tabl_n,1);
       for (int z=0; z < sizeX; z++){
@@ -395,7 +387,6 @@ void singleLayer(){
        }
        alpha = 1;
   }
-
 
   void source_Centre(){
       fill_space(tabl_n,1);
@@ -420,7 +411,6 @@ void singleLayer(){
        }
        alpha = 1;
   }
-
 
   void Diffraction(){
     fill_space(tabl_n,1);
@@ -455,9 +445,45 @@ void singleLayer(){
       alpha = 200;
     }
 
+/*
+    void display(){
 
+        fstream out;
+        outfile.open("Co_ordinates.txt",fstream::out | fstream::trunc);
+        outfile.precision(6);
+        for(int i=0;i<3000; i++){
+            outfile<<fixed<<x[i]<<"   "<<fixed<<y[i]<<endl;
+        }
+        out.close();
+
+    }
+
+*/
+
+
+
+
+
+
+  /*int my = 0;
+  double ampl_incident;
+  */
   int main( int argc, char **argv ) {
-    double Ampl_in =0;
+
+    fstream outfile1;                                                   // pour l'extraction de valeurs pour créer des graphes
+    outfile1.open("ampl.txt", fstream::out | fstream::trunc);          //
+    outfile1.precision(6);                                              //
+    /*fstream outfile2;                                                   //
+    fstream outfile3;                                                   //
+
+    outfile2.open("ampl2.txt", fstream::out | fstream::trunc);          //
+    outfile2.precision(6);                                              //
+    outfile3.open("ampl3.txt", fstream::out | fstream::trunc);          //
+    outfile3.precision(6);                                              // pour l'extraction de valeurs pour créer des graphes
+    */
+
+
+    double Ampl_in = 0;
     double Ampl_out = 0;
     window_Amp.open(sizeY,sizeX);
     image_Amp.setDimension(sizeY,sizeX);
@@ -493,6 +519,16 @@ void singleLayer(){
       //     tabl_n[z][50] = 1.00029;
       //   }
     //  }
+    //AmplitudeComputation();
+
+    /*for (int y = 51;y<sizeY/2-1;y++){
+      if(abs(tabl_amplitude[0][y]) > ampl_incident){
+        ampl_incident = abs(tabl_amplitude[0][y]);
+        my = y;
+      }
+    }*/
+
+
       if(i == 300){
         Ampl_in = AmplitudeMax(51,51,sizeX,sizeY);
         cout << "debut "<<AmplitudeMax(51,51,sizeX,sizeY) << endl;
@@ -522,17 +558,36 @@ void singleLayer(){
       }
 
       if(i%10 == 0){
+          outfile1<<fixed<< i<<"   "<<fixed<<tabl_rho[0][283]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 12]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 60]<<endl; //écrire dans le fichier text les valeurs à plot
+          /*outfile2<<fixed<< i<<"   "<<fixed<<i<<endl; //écrire dans le fichier text les valeurs à plot
+          outfile3<<fixed<< i<<"   "<<fixed<<i<<endl; //écrire dans le fichier text les valeurs à plot
+          */
+      }
       window.drawMatrix(image);
+
+
+
+      /*
+      if(i%10 == 0){
+
         sprintf(title, "%d", i);
         window.printInto(title,image);
         //strcat(title, conc);
-      }
+      }*/
     }
     cout << "en haut "<< AmplitudeMax(0,51,sizeX,sizeY/2-1) << endl;
     cout << pow(Ampl_out-Ampl_in,1)/pow(Ampl_in,1);
+    //cout << " max y : " << my << endl;
     //cout << pow(Ampl_out,2)/pow(Ampl_in,2);
     window.close();
     //window_Amp.close();
+
+
+
+    outfile1.close();
+    //outfile2.close();
+    //outfile3.close();
+    //system("gnuplot -p -e \"plot 'Co_ordinates.txt'\"");
     return 0;
 
 }
