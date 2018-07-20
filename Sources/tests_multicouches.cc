@@ -3,6 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
+#include <string.h>
 #include "GraphicsInterface.hh"
 
 using std::vector;
@@ -17,9 +18,9 @@ GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
 const int sizeX = 1;
-const int sizeY = 2000;
+const int sizeY = 4000;
 const int q = 4;
-const double deltaX = 1;
+const double deltaX = 0.5;
 const double v = pow((q/2),1/2)*3*pow(10,8);
 const double deltaT = deltaX/v;
 const double pi = 3.14159265358979323846;
@@ -435,7 +436,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
     void multicouche(){
 
-        double na = 1.00;   //first refraction indice
+        double na = 1;   //first refraction indice
         double nb = 1.6;    // second refraction indice
         double d = 250;     //size of two layers (a and b)
         int nl = 5;         // number of double layers
@@ -478,8 +479,13 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     //window_Amp.open(sizeY,sizeX);
     //image_Amp.setDimension(sizeY,sizeX);
 
+
+
     //window.open(sizeY,sizeX);
     //image.setDimension(sizeY,sizeX);
+
+    window_Amp.open((int)(sizeY/4),sizeX);
+    image_Amp.setDimension((int)(sizeY/4),sizeX);
 
     window.open((int)(sizeY/4),sizeX);
     image.setDimension((int)(sizeY/4),sizeX);
@@ -511,6 +517,9 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     double nb1 = 0;
     double hit = 0;
     double ampl2 = 0;
+
+    char title[100]; // nom pour la souvegarde d'image
+
 
 
     for (int i = 1; i <= 10000;i++){
@@ -555,25 +564,35 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       }
 
       window.drawMatrix(image);
-      if(i == 600){ampl_incident = ampl1;}
+      if(i == (int)(lambda/deltaX)){ampl_incident = ampl1;}
 
-      /*if(i>1200){
+      if(i>1200){
         AmplitudeComputation();
         for (int k = 0; k < sizeX; k++){
-          for (int j = 0; j < sizeY; j++){
-            if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
-              image_Amp.set(j,k,(unsigned char) (5*(tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
+          for (int j = 0; j < sizeY/4; j++){
+            if (tabl_n[k][4*j]<0){image.set(j,k,(unsigned char) (1));}else{
+              //image_Amp.set(j,k,(unsigned char) (5*(tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
+              image_Amp.set(j,k,(unsigned char) (5*(tabl_amplitude[k][4*j]/Ampl_max) *  33 + 164));
             }
           }
         }
       }
-      window_Amp.drawMatrix(image_Amp);*/
+      window_Amp.drawMatrix(image_Amp);
+
+      if ( i == 500 || i == 4900 ){
+        sprintf(title, "%d", i);
+        window.printInto(title,image);
+        //strcat(title, conc);
+      }
+
+
     }
     window.close();
-    //window_Amp.close();
+    window_Amp.close();
 
     cout << ampl1 << " : " << nb1 << "  hit : " << hit << "\n";
     cout <<"                              " << ampl2  << "\n";
+    cout <<"Amplitude de l'onde incidente (caculée après "<< (int)(lambda/deltaX)<< " itérations : "<< ampl_incident << "\n";
     cout << "reflexivité : " << ampl1/ampl_incident - 1 << "\n";
     return 0;
 
