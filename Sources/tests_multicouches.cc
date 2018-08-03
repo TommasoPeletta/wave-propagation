@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <string.h>
 #include "GraphicsInterface.hh"
+#include <fstream>
 
 using std::vector;
 using namespace std;
@@ -430,8 +431,8 @@ void fill_space(type_coeff_reffrac matrix, double in) {
 
   void multicouche(){
 
-        double na = 12;   //first refraction indice
-        double nb = 12;    // second refraction indice
+        double na = 3;   //first refraction indice
+        double nb = 3;    // second refraction indice
         double d = 125;     //size of two layers (a and b)
         int nl = 1;         // number of double layers
 
@@ -469,6 +470,11 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     if (argc > 1){
       lambda =atof(argv[1]);
     }
+
+
+    fstream outfile;                                                   // pour l'extraction de valeurs pour créer des graphes
+    outfile.open("ampl2.txt", fstream::out | fstream::trunc);          //
+    outfile.precision(6);
 
     //window_Amp.open(sizeY,sizeX);
     //image_Amp.setDimension(sizeY,sizeX);
@@ -509,7 +515,6 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     double ampl_incident = 0;
     double ampl1 = 0;
     double nb1 = 0;
-    double hit = 0;
     double ampl2 = 0;
 
     char title[100]; // nom pour la souvegarde d'image
@@ -528,6 +533,10 @@ void fill_space(type_coeff_reffrac matrix, double in) {
         }
       }
 
+      if(i%10 == 0){
+          outfile<<fixed<< i<<"   "<<fixed<<tabl_rho[0][350]<<endl; //écrire dans le fichier text les valeurs à plot
+
+      }
 
       //window.drawMatrix(image);
 
@@ -544,12 +553,11 @@ void fill_space(type_coeff_reffrac matrix, double in) {
       }
       if(m>ampl1){
         if(nb1 > 5){
-          cout << ampl1 << " : " << nb1 << "  hit : " << hit << "    y = " << my << "    iteration : " << i << "\n";
+          cout << ampl1 << " : " << nb1 << "    y = " << my << "    iteration : " << i << "\n";
         }
         ampl1 = m;
         nb1 = 0;
-        hit = 0;
-      }else if (m = ampl1){hit = hit + 1;}
+      }
 
       nb1 = nb1 + 1;
 
@@ -584,10 +592,15 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     window.close();
     window_Amp.close();
 
-    cout << ampl1 << " : " << nb1 << "  hit : " << hit << "\n";
+    outfile.close();
+
+    cout << ampl1 << " : " << nb1 << "\n";
     cout <<"                              " << ampl2  << "\n";
     cout <<"Amplitude de l'onde incidente (caculée après "<< (int)(lambda/deltaX)<< " itérations : "<< ampl_incident << "\n";
     cout << "reflexivité : " << ampl1/ampl_incident - 1 << "\n";
+
+
+    system("gnuplot -p -e \"plot 'ampl2.txt'\"");
     return 0;
 
 }
