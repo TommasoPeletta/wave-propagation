@@ -17,7 +17,7 @@ Matrix<unsigned char> image;
 GraphicsInterface window_Amp;
 Matrix<unsigned char> image_Amp;
 
-const int sizeX = 70;
+const int sizeX = 400;
 const int sizeY = 600;
 const int q = 4;
 const double deltaX = 5*pow(10,-9);
@@ -258,7 +258,8 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][2], type_F f
         double Ampl = 0.01;
         double lambda = 6*pow(10,-7); //nanomètre
         double phase = 0;
-        double frequence = v/lambda;
+        //double frequence = v/lambda;
+        double frequence = 3*pow(10,8)/lambda;
         for (int k = 0; k<=q ; k++){
           f_out[i][j][k] = Ampl*sin(2*pi*frequence*iteration*deltaT);
         }
@@ -442,24 +443,8 @@ void singleLayer(){
         tabl_n[200-d-z][300+y]  = 1;
       }
       }
-      alpha = 200;
+      alpha = 50;
     }
-
-/*
-    void display(){
-
-        fstream out;
-        outfile.open("Co_ordinates.txt",fstream::out | fstream::trunc);
-        outfile.precision(6);
-        for(int i=0;i<3000; i++){
-            outfile<<fixed<<x[i]<<"   "<<fixed<<y[i]<<endl;
-        }
-        out.close();
-
-    }
-
-*/
-
 
 
 
@@ -473,14 +458,7 @@ void singleLayer(){
     fstream outfile1;                                                   // pour l'extraction de valeurs pour créer des graphes
     outfile1.open("ampl.txt", fstream::out | fstream::trunc);          //
     outfile1.precision(6);                                              //
-    /*fstream outfile2;                                                   //
-    fstream outfile3;                                                   //
 
-    outfile2.open("ampl2.txt", fstream::out | fstream::trunc);          //
-    outfile2.precision(6);                                              //
-    outfile3.open("ampl3.txt", fstream::out | fstream::trunc);          //
-    outfile3.precision(6);                                              // pour l'extraction de valeurs pour créer des graphes
-    */
 
 
     double Ampl_in = 0;
@@ -564,7 +542,16 @@ void singleLayer(){
           */
       }
       window.drawMatrix(image);
-
+      AmplitudeComputation();
+      for (int k = 0; k < sizeX; k++){
+        for (int j = 0; j < sizeY; j++){
+          if (tabl_n[k][j]<0){image.set(j,k,(unsigned char) (1));}else{
+            //image_Amp.set(j,k,(unsigned char) (5*(tabl_amplitude[k][j]/Ampl_max) *  33 + 164));
+            image_Amp.set(j,k,(unsigned char) ((tabl_amplitude[k][j]/rho_max) *  33 + 164));
+          }
+        }
+      }
+      window_Amp.drawMatrix(image_Amp);
 
 
       /*
@@ -580,14 +567,11 @@ void singleLayer(){
     //cout << " max y : " << my << endl;
     //cout << pow(Ampl_out,2)/pow(Ampl_in,2);
     window.close();
-    //window_Amp.close();
+    window_Amp.close();
 
 
 
     outfile1.close();
-    //outfile2.close();
-    //outfile3.close();
-    //system("gnuplot -p -e \"plot 'Co_ordinates.txt'\"");
     return 0;
 
 }
