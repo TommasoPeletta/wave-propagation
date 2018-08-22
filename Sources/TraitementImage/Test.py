@@ -38,6 +38,15 @@ def writeLog(matrice):
         file.write("\n")
     file.close()
 
+def calculeIndice(vPixel, bornInf, bornSup):
+    if (vPixel <= 80):
+        indice = (255 - vPixel)/255 * (bornSup-bornSup*0.8)+bornSup*0.8
+    elif (vPixel >= 175):
+        indice = (255 - vPixel)/255* (bornSup*0.2-bornInf)+bornInf
+    else:
+        indice = (255 - vPixel)/255 * (bornSup-bornInf)+bornInf
+    return indice
+
 
 tailleCouche = 10
 precision = 3
@@ -48,7 +57,7 @@ i1 = Image.open(nomImage(0))
 (limag, himag) = i1.size
 
 #Gestion des erreurs des paramètres.
-messageErreur = "L'éxécution doit être sous cette forme : ''python3 Test.py debutX debutY endX endY précisionDésiré précisionEntreLesImages''. "
+messageErreur = "L'éxécution doit être sous cette forme : ''python3 Test.py debutX debutY finX finY précisionDésiré précisionEntreLesImages''. "
 if len(sys.argv)!=7:
     print("Le noumbre d'argument n'est pas correcte.", messageErreur)
     sys.exit(0)
@@ -75,7 +84,7 @@ nbImag = 1
 nbCouche = 0
 
 mat = [[[0 for i in range (200)] for j in range (tailleMatriceY)] for k in range (tailleMatriceX)]
-for w in range(1,5):
+for w in range(1,10):
     nbImag = nbImag+1
     name = nomImage(w)
     i2 = Image.open(name)
@@ -88,8 +97,10 @@ for w in range(1,5):
                 c1 = i1.getpixel((x,y))
                 c2 = i2.getpixel((x,y))
                 #img.putpixel((x-300, y-300), c)
-                indice1 = (255 - c1)/255 * (bornSup-bornInf)+bornInf
-                indice2 = (255 - c2)/255 * (bornSup-bornInf)+bornInf
+                indice1 = calculeIndice(c1,bornInf, bornSup)
+                indice2 = calculeIndice(c2,bornInf, bornSup)
+                #indice1 = (255 - c1)/255 * (bornSup-bornInf)+bornInf
+                #indice2 = (255 - c2)/255 * (bornSup-bornInf)+bornInf
                 # fait l'appproximation linéaire
                 ind = (10-(nbCouche*3-(nbImag-2)*10))/10*indice1+(10-((nbImag-1)*10-nbCouche*3))/10*indice2
                 mat[x-startX][y-startY][nbCouche] = ind
@@ -100,3 +111,4 @@ print("Noubre de Couche ", nbCouche)
 #img.show()
 #afficher(mat)
 writeLog(mat)
+
