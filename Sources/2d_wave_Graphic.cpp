@@ -37,7 +37,7 @@ typedef double vecteur[2];
 // global variables declaration
 double rho_max;
 double Ampl_max;
-int alpha; // plots' coulor
+int alpha; // plots' colour
 type_F f_in; // 3d matrix containing the fi entering the site (for i = 0..q)
 type_F f_out; // 3d matrix containing the fi exiting the site (for i = 0..q)
 type_coeff_reffrac tabl_n; // matrix containg the refraction index for each point of the space

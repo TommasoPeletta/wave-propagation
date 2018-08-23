@@ -22,7 +22,7 @@ g++ 3d_wave.cpp -o 3d_wave
 
 //constant declaration
 const int q = 6; // number of lattice directions along which the population f i can move (7 dimensions, start from 0)
-const double deltaX = 75; // lattice spacing [m]
+const double deltaX = 5*pow(10,-9); // lattice spacing [m]
 const double v = pow((q/2),0.5)*3*pow(10,8); // the velocity of wave propagation [m/s]
 const double deltaT = deltaX/v;  // time step [s]
 const double pi = 3.14159265358979323846;
@@ -325,9 +325,10 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
             }
           }
         } else if(n[i][j][z] > 0){       //in this programme, sources are represented by a refraction coefficient between 0 and 1
-          double Amplitude = 100;
+          double Amplitude = 0.01;
+          double lambda = 6*pow(10,-7);
           double facteur = 0.04;
-          double frequence = 2*pow(10,5);
+          double frequence = 3*pow(10,8)/lambda;
           for (int k = 0; k < q+1 ; k++){
             f_out[i][j][z][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
           }
@@ -360,6 +361,24 @@ void defmatrix(type_coeff_reffrac n){
   }
 }
 
+void beta_initialization(){
+  for (int i=0;i<sizeX;i++){
+    for (int j=0;j<sizeY;j++){
+      for (int z=0;z<sizeZ;z++){
+        if (i<size_c || i>sizeX-size_c){
+          beta[i][j][z] = 0.9;
+        }
+        if (j<size_c || j>sizeY-size_c){
+          beta[i][j][z] = 0.9;
+        }
+        if (z<size_c || z>sizeZ-size_c){
+          beta[i][j][z] = 0.9;
+        }
+      }
+    }
+  }
+}
+
 
 // read from a log file all the refraction indexes computed by the python script.
 // set the size of the matrix and fill tabl_n with the read data
@@ -384,7 +403,6 @@ void Hynobius(){
 
   if (buffer)
   {
-    printf("%s\n", buffer);
     aux = strtok(buffer, " ");
     sizeX = atoi(aux);
     aux = strtok(NULL, " ");
@@ -418,12 +436,13 @@ int main( int argc, char **argv ) {
   allocate();
   define_fin(f_in);
   defmatrix(beta);
+  beta_initialization();
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
   tabl_n[5][5][5] = 0.5;
   for (int i = 1; i <= 5;i++){
     rho_max = 0;
     foutComputation(tabl_n,v,vi,f_in,i);
-    //afficher(f_in, 4);
+    afficher(f_in, 4);
   }
 
   return 0;

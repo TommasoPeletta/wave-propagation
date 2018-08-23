@@ -29,15 +29,29 @@ def nomImage(num):
 def writeLog(matrice):
     file = open("logfile.txt","r+")
     file.truncate(0)
+    file.write(str(tailleMatriceX))
+    file.write(" ")
+    file.write(str(tailleMatriceY))
+    file.write(" ")
+    file.write(str(nbCouche))
+    file.write(" ")
     for l in range(nbCouche):
         for f in range(tailleMatriceY):
             for g in range(tailleMatriceX):
                 file.write(str(matrice[g][f][l]))
                 file.write(" ")
-            file.write("\n")
-        file.write("\n")
+            #file.write("\n")
+        #file.write("\n")
     file.close()
 
+def calculeIndice(vPixel, bornInf, bornSup):
+    if (vPixel <= 80):
+        indice = (255 - vPixel)/255 * (bornSup-bornSup*0.8)+bornSup*0.8
+    elif (vPixel >= 175):
+        indice = (255 - vPixel)/255* (bornSup*0.2-bornInf)+bornInf
+    else:
+        indice = (255 - vPixel)/255 * (bornSup-bornInf)+bornInf
+    return indice
 
 tailleCouche = 10
 precision = 3
@@ -88,8 +102,10 @@ for w in range(1,5):
                 c1 = i1.getpixel((x,y))
                 c2 = i2.getpixel((x,y))
                 #img.putpixel((x-300, y-300), c)
-                indice1 = (255 - c1)/255 * (bornSup-bornInf)+bornInf
-                indice2 = (255 - c2)/255 * (bornSup-bornInf)+bornInf
+                indice1 = calculeIndice(c1,bornInf, bornSup)
+                indice2 = calculeIndice(c2,bornInf, bornSup)
+                #indice1 = (255 - c1)/255 * (bornSup-bornInf)+bornInf
+                #indice2 = (255 - c2)/255 * (bornSup-bornInf)+bornInf
                 # fait l'appproximation linéaire
                 ind = (10-(nbCouche*3-(nbImag-2)*10))/10*indice1+(10-((nbImag-1)*10-nbCouche*3))/10*indice2
                 mat[x-startX][y-startY][nbCouche] = ind
