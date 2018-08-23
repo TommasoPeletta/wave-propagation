@@ -409,6 +409,7 @@ void Hynobius(){
     sizeY = atoi(aux);
     aux = strtok(NULL, " ");
     sizeZ = atoi(aux);
+    aux = strtok(NULL, " ");
     tabl_n = (double***)malloc(sizeX * sizeof(double **));
     for (int index = 0;index < sizeX; index++){
       tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
