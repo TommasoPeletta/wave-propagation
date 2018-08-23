@@ -18,7 +18,7 @@ g++ 3d_wave.cpp -o 3d_wave
 ./3d_wave
 */
 
-// !!!!!! implemanter le beta
+
 
 //constant declaration
 const int q = 6; // number of lattice directions along which the population f i can move (7 dimensions, start from 0)
