@@ -4,43 +4,67 @@
 #include <algorithm>
 #include <GL/glut.h>
 #include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 using std::vector;
 using namespace std;
 
-/*Pour lancer le code : g++ 3d_wave.cpp -o 3d_wave
-                    ./3d_wave
-                    */
+/*
+For Executing the code :
+g++ 3d_wave.cpp -o 3d_wave
+./3d_wave
+*/
 
+// !!!!!! implemanter le beta
 
-const int sizeX = 100;
-const int sizeY = 200;
-const int sizeZ = 500;
-const int q = 6;
-const double deltaX = 75;
-const double v = pow((q/2),1/2)*3*pow(10,8);
-const double deltaT = deltaX/v;
+//constant declaration
+const int q = 6; // number of lattice directions along which the population f i can move (7 dimensions, start from 0)
+const double deltaX = 75; // lattice spacing [m]
+const double v = pow((q/2),0.5)*3*pow(10,8); // the velocity of wave propagation [m/s]
+const double deltaT = deltaX/v;  // time step [s]
 const double pi = 3.14159265358979323846;
-const double size_c = 40;
-//double beta[sizeX][sizeY][sizeZ];
-double rho_max;
-double Ampl_max;
+const double size_c = 40; // distance from the edge of matrix from where the attenuation of the wave start
 
+
+//type declaration
 typedef double ****type_F;
 typedef double ***type_coeff_reffrac;
 typedef double vecteur[3];
-type_F f_in;
-type_F f_out;
-type_coeff_reffrac tabl_n;
-type_coeff_reffrac beta;
-type_coeff_reffrac tabl_amplitude;
-type_coeff_reffrac tabl_rho;
+
+
+// global variables declaration
+int sizeX;
+int sizeY;
+int sizeZ;
+bool ifHynobius = true;
+double rho_max;
+double Ampl_max;
+type_F f_in; // 4d matrix containing the fi entering the site (for i = 0..q)
+type_F f_out; // 4d matrix containing the fi exiting the site (for i = 0..q)
+type_coeff_reffrac tabl_n; // matrix containg the refraction index for each point of the space
+type_coeff_reffrac beta; // attenuation coefficient
+type_coeff_reffrac tabl_amplitude; // matrix containg the maximum amplitude for each point of the space
+type_coeff_reffrac tabl_rho; // matrix containg the sum of the fi entering the site for each point of the space
 
 
 
-
+// Allocation of the different matrix which be use by the program.
 void allocate(){
-
+  if (ifHynobius){
+    sizeX = 100;
+    sizeY = 100;
+    sizeZ = 50;
+    tabl_n = (double***)malloc(sizeX * sizeof(double **));
+    for (int index = 0;index < sizeX; index++){
+      tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
+      for (int i = 0; i < sizeY;i++){
+        tabl_n[index][i] = (double *)malloc(sizeZ*sizeof(double));
+      }
+    }
+  }
 
   f_in = (double ****) malloc (sizeof(double ****)*sizeX);
   for (int i = 0; i < sizeX; i++){
@@ -64,13 +88,7 @@ void allocate(){
     }
   }
 
-  tabl_n = (double***)malloc(sizeX * sizeof(double **));
-  for (int index = 0;index < sizeX; index++){
-    tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
-    for (int i = 0; i < sizeY;i++){
-      tabl_n[index][i] = (double *)malloc(sizeZ*sizeof(double));
-    }
-  }
+
 
   beta = (double***)malloc(sizeX * sizeof(double **));
   for (int index = 0;index < sizeX; index++){
@@ -99,6 +117,7 @@ void allocate(){
 
 }
 
+//initialize a type_F variable with 0
 void define_fin(type_F x){
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
@@ -110,6 +129,8 @@ void define_fin(type_F x){
   }
 }
 
+
+//product between two 3d vectors
 double vectors_prod(vecteur x,vecteur y)
 {
     double res = 0.0;
@@ -123,7 +144,7 @@ double vectors_prod(vecteur x,vecteur y)
 
 
 
-
+// product between a scalar and a 3d vector
 void scalar_prod(vecteur x, double y){
   for (int i = 0; i < 3; i++){
     x[i] = x[i] * y;
@@ -132,7 +153,7 @@ void scalar_prod(vecteur x, double y){
 
 
 
-
+// sum between two 3d vectors
 void vector_sum(vecteur x, vecteur y){
   for (int i = 0; i < 3; i++){
     x[i] = x[i] + y[i];
@@ -141,7 +162,14 @@ void vector_sum(vecteur x, vecteur y){
 
 
 
-
+/****************************************************************
+Function for computing the J,
+jComputation take as parameters:
+-res of type vecteur that will contain the result J
+-vi a matrix of dimension q+1 x 3 that contain all lattice's velocity directions
+-f_in of type type_F that contain the fi entering the site
+-x, y and z that represent de point that is being processing
+*****************************************************************/
 void jComputation(vecteur res,double vi[q+1][3], type_F f_in ,int x ,int y, int z){
   res[0] = 0;
   res[1] = 0;
@@ -158,7 +186,13 @@ void jComputation(vecteur res,double vi[q+1][3], type_F f_in ,int x ,int y, int 
 
 
 
-
+/***********************************************************************************************
+Function for converting the fi exiting the site into the fi entering the site in next iteration.
+This function take in consideration the coefficient of attenuation beta.
+vector_cpy take as parameters:
+-f_out of type type_F representing the fi exiting the site in the current iteration
+-f_in of type_F will contain the fi entering the site for the next iteration
+************************************************************************************************/
 void vector_cpy(type_F f_out, type_F f_in){
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
@@ -205,7 +239,12 @@ void vector_cpy(type_F f_out, type_F f_in){
 }
 
 
-
+/***************************************************************************
+This function compute and return the sum of the fi entering the site for a given point known as rho.
+rhoComputation take as parameters:
+-matrix of type type_F representing the fi entering the site.
+-i, j and z representing the point that is being processing.
+***************************************************************************/
 double rhoComputation(type_F matrix, int i, int j, int z) { //Calcule du rho
   double sum = 0;
   for (int k = 0; k < q+1; k++){
@@ -230,6 +269,11 @@ void afficher(type_F matrix, int z) { //Fonction pour afficher une matrice
 }
 
 
+/******************************************************************
+This function update the global variable tabl_amplitude with the
+new maximum amplitudes if they are reached at the iteration from where
+the function is called.
+******************************************************************/
 void AmplitudeComputation(){
   for (int x = 0; x < sizeX; x++){
     for (int y = 0; y < sizeY; y++){
@@ -245,6 +289,16 @@ void AmplitudeComputation(){
 }
 
 
+/**********************************************************************************************
+This function compute the fi exiting the site knowing the fi entering the site.
+It also handle the source of the wave.
+foutComputation take as parameters:
+-n of type type_coeff_reffrac that contains the refraction index of each point
+-v of type double is the velocity of wave propagation
+-vi a matrix of dimension q+1 x 3 that contain all lattice's velocity directions
+-f_in of type type_F the fi entering the site
+-iteratioon of type int the current iteration of the system
+***********************************************************************************************/
 void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f_in, int iteration){
   double rho;
   for (int i = 0; i < sizeX; i++){
@@ -295,6 +349,7 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
   vector_cpy(f_out, f_in);
 }
 
+//initialize a type_coeff_reffrac matrix with 1
 void defmatrix(type_coeff_reffrac n){
   for (int i = 0; i < sizeX; i++){
     for (int j = 0; j < sizeY; j++){
@@ -306,17 +361,69 @@ void defmatrix(type_coeff_reffrac n){
 }
 
 
+// read from a log file all the refraction indexes computed by the python script.
+// set the size of the matrix and fill tabl_n with the read data
+void Hynobius(){
+  ifHynobius = false;
+  char *buffer = 0;
+  char* aux;
+  chdir("./TraitementImage");
+  FILE *f = fopen("logfile.txt","r");
+  if (f)
+  {
+    fseek (f, 0, SEEK_END);
+    long length = ftell (f);
+    fseek (f, 0, SEEK_SET);
+    buffer =(char*) malloc (length);
+    if (buffer)
+    {
+      fread (buffer, 1, length, f);
+    }
+    fclose (f);
+  }
+
+  if (buffer)
+  {
+    printf("%s\n", buffer);
+    aux = strtok(buffer, " ");
+    sizeX = atoi(aux);
+    aux = strtok(NULL, " ");
+    sizeY = atoi(aux);
+    aux = strtok(NULL, " ");
+    sizeZ = atoi(aux);
+    tabl_n = (double***)malloc(sizeX * sizeof(double **));
+    for (int index = 0;index < sizeX; index++){
+      tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
+      for (int i = 0; i < sizeY;i++){
+        tabl_n[index][i] = (double *)malloc(sizeZ*sizeof(double));
+      }
+    }
+    for (int i = 0; i < sizeZ; i++){
+      for (int j = 0; j < sizeY; j++){
+        for (int k = 0; k < sizeX; k++){
+       //if( aux != NULL ) {
+        tabl_n[k][j][i] =(double) atof(aux);
+        aux = strtok(NULL, " ");
+   //  }
+      }
+    }
+  }
+ //printf("%f\n",f_in[8][9][13]);
+}
+}
+
+
 int main( int argc, char **argv ) {
+  Hynobius();
   allocate();
   define_fin(f_in);
-  defmatrix(tabl_n);
   defmatrix(beta);
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
   tabl_n[5][5][5] = 0.5;
   for (int i = 1; i <= 5;i++){
     rho_max = 0;
     foutComputation(tabl_n,v,vi,f_in,i);
-    afficher(f_in, 4);
+    //afficher(f_in, 4);
   }
 
   return 0;
