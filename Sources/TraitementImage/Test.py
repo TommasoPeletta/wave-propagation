@@ -36,8 +36,8 @@ def writeLog(matrice):
             for g in range(tailleMatriceX):
                 file.write(str(matrice[g][f][l]))
                 file.write(" ")
-            file.write("\n")
-        file.write("\n")
+            #file.write("\n")
+        #file.write("\n")
     file.close()
 
 def calculeIndice(vPixel, bornInf, bornSup):
