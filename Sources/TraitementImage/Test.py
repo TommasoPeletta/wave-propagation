@@ -1,3 +1,5 @@
+#!/usr/bin/python
+import PIL as pillow
 from PIL import Image
 from PyQt4 import QtGui, QtCore
 import sys
@@ -8,6 +10,7 @@ import os
 # python3 nomDuCode startX startY endX endY precision EspaceImage IndiceRefractionBas indiceRefractionHaut
 directory = "./"
 startdir = os.getcwd()
+
 class Widget(QtGui.QDialog) :
 
     def __init__(self, parent=None):
@@ -70,10 +73,10 @@ class Widget(QtGui.QDialog) :
         grid.addWidget(QtGui.QLabel('Precision between layers'), 6, 0)
         grid.addWidget(q6Edit, 6, 1)
 
-        grid.addWidget(QtGui.QLabel('Bottom refraction index '), 7, 0)
+        grid.addWidget(QtGui.QLabel('White refraction index '), 7, 0)
         grid.addWidget(q7Edit, 7, 1)
 
-        grid.addWidget(QtGui.QLabel('Top refraction index'), 8, 0)
+        grid.addWidget(QtGui.QLabel('Black refraction index'), 8, 0)
         grid.addWidget(q8Edit, 8, 1)
 
         seldir = QtGui.QPushButton('Select directory of images', self)
@@ -82,6 +85,7 @@ class Widget(QtGui.QDialog) :
 
         applyBtn = QtGui.QPushButton('Apply', self)
         applyBtn.clicked.connect(self.close)
+        #applyBtn.clicked.connect(self.close)
 
         self.path = QtGui.QLabel(startdir)
         grid.addWidget(seldir,9,0)
@@ -90,6 +94,7 @@ class Widget(QtGui.QDialog) :
         self.setLayout(grid)
         self.setGeometry(300, 300, 600, 800)
         self.setWindowTitle("refraction index convertion")
+
 
     def selectdir(self):
         global directory
@@ -157,13 +162,14 @@ class Widget(QtGui.QDialog) :
         return ['Test.py',dialog.returnAnswer1(), dialog.returnAnswer2(), dialog.returnAnswer3(), dialog.returnAnswer4(), dialog.returnAnswer5(), dialog.returnAnswer6(), dialog.returnAnswer7(), dialog.returnAnswer8(), directory]
 
 
-def afficher(matrice):
-    for k in range(nbCouche):
-        for x in range(tailleMatriceX):
-            for y in range(tailleMatriceY):
-                print(matrice[x][y][k], end=' ')
-            print("")
-        print("")
+
+#def afficher(matrice):
+#    for k in range(nbCouche):
+#        for x in range(tailleMatriceX):
+#            for y in range(tailleMatriceY):
+#                print(matrice[x][y][k], end=' ')
+#            print("")
+#        print("")
 
 def nomImage(num):
     s1 = "Hynobius FIB SEM data"
@@ -179,6 +185,14 @@ def nomImage(num):
     elif num//1000 == 0:
         s2 = saux1+s2
     return s1+s2+s3
+
+def newWindow():
+    msg = QtGui.QMessageBox()
+    msg.setIcon(QtGui.QMessageBox.Information)
+    msg.setText("Images' refraction index have been converted successfully")
+    msg.setStandardButtons(QtGui.QMessageBox.Ok)
+    #msg.buttonClicked.connect(msgbtn)
+    retval = msg.exec_()
 
 
 def writeLog(matrice):
@@ -295,7 +309,7 @@ elif (startX>limag or startY>himag or endX>limag or endY>himag or startX>endX or
     print("Erreur, les dimensions du cropage sont incorrectes. L'image fait de taille ", limag, " x ", himag)
     sys.exit(0)
 
-
+newWindow()
 #Initialisation de taille des matrices
 tailleMatriceX = endX-startX
 tailleMatriceY = endY-startY
