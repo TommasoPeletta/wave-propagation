@@ -1,11 +1,135 @@
 from PIL import Image
+from PyQt4 import QtGui, QtCore
 import sys
 
 # Commande pour lancer le code : python3 Test.py 1000 1000 1002 1002 5 10 1 7
 # python3 nomDuCode startX startY endX endY precision EspaceImage IndiceRefractionBas indiceRefractionHaut
 
+class Widget(QtGui.QDialog) :
 
-# A virer pMin et pMax
+    def __init__(self, parent=None):
+        super(Widget, self).__init__(parent)
+
+        self.answer1 = QtGui.QLabel()
+        q1Edit = QtGui.QLineEdit()
+        q1Edit.textChanged.connect(self.q1Changed)
+
+        self.answer2 = QtGui.QLabel()
+        q2Edit = QtGui.QLineEdit()
+        q2Edit.textChanged.connect(self.q2Changed)
+
+        self.answer3 = QtGui.QLabel()
+        q3Edit = QtGui.QLineEdit()
+        q3Edit.textChanged.connect(self.q3Changed)
+
+        self.answer4 = QtGui.QLabel()
+        q4Edit = QtGui.QLineEdit()
+        q4Edit.textChanged.connect(self.q4Changed)
+
+        self.answer5 = QtGui.QLabel()
+        q5Edit = QtGui.QLineEdit()
+        q5Edit.textChanged.connect(self.q5Changed)
+
+        self.answer6 = QtGui.QLabel()
+        q6Edit = QtGui.QLineEdit()
+        q6Edit.textChanged.connect(self.q6Changed)
+
+        self.answer7 = QtGui.QLabel()
+        q7Edit = QtGui.QLineEdit()
+        q7Edit.textChanged.connect(self.q7Changed)
+
+        self.answer8 = QtGui.QLabel()
+        q8Edit = QtGui.QLineEdit()
+        q8Edit.textChanged.connect(self.q8Changed)
+
+        grid = QtGui.QGridLayout()
+        grid.setSpacing(20)
+
+        grid.addWidget(QtGui.QLabel('StartX'), 1, 0)
+        grid.addWidget(q1Edit, 1, 1)
+
+        grid.addWidget(QtGui.QLabel('StartY'), 2, 0)
+        grid.addWidget(q2Edit, 2, 1)
+
+        grid.addWidget(QtGui.QLabel('EndX'), 3, 0)
+        grid.addWidget(q3Edit, 3, 1)
+
+        grid.addWidget(QtGui.QLabel('EndY'), 4, 0)
+        grid.addWidget(q4Edit, 4, 1)
+
+        grid.addWidget(QtGui.QLabel('Precision'), 5, 0)
+        grid.addWidget(q5Edit, 5, 1)
+
+        grid.addWidget(QtGui.QLabel('Precision between layers'), 6, 0)
+        grid.addWidget(q6Edit, 6, 1)
+
+        grid.addWidget(QtGui.QLabel('Bottom refraction index '), 7, 0)
+        grid.addWidget(q7Edit, 7, 1)
+
+        grid.addWidget(QtGui.QLabel('Top refraction index'), 8, 0)
+        grid.addWidget(q8Edit, 8, 1)
+
+        applyBtn = QtGui.QPushButton('Apply', self)
+        applyBtn.clicked.connect(self.close)
+
+        grid.addWidget(applyBtn,9,2)
+        self.setLayout(grid)
+        self.setGeometry(300, 300, 350, 800)
+        self.setWindowTitle("refraction index convertion")
+
+    def q1Changed(self, text):
+        self.answer1.setText(text)
+
+    def q2Changed(self, text):
+        self.answer2.setText(text)
+
+    def q3Changed(self, text):
+        self.answer3.setText(text)
+
+    def q4Changed(self, text):
+        self.answer4.setText(text)
+
+    def q5Changed(self, text):
+        self.answer5.setText(text)
+
+    def q6Changed(self, text):
+        self.answer6.setText(text)
+
+    def q7Changed(self, text):
+        self.answer7.setText(text)
+
+    def q8Changed(self, text):
+        self.answer8.setText(text)
+
+    def returnAnswer1(self):
+        return self.answer1.text()
+
+    def returnAnswer2(self):
+        return self.answer2.text()
+
+    def returnAnswer3(self):
+        return self.answer3.text()
+
+    def returnAnswer4(self):
+        return self.answer4.text()
+
+    def returnAnswer5(self):
+        return self.answer5.text()
+
+    def returnAnswer6(self):
+        return self.answer6.text()
+
+    def returnAnswer7(self):
+        return self.answer7.text()
+
+    def returnAnswer8(self):
+        return self.answer8.text()
+
+    @staticmethod
+    def getData(parent=None):
+        dialog = Widget(parent)
+        dialog.exec_()
+        return ['Test.py',dialog.returnAnswer1(), dialog.returnAnswer2(), dialog.returnAnswer3(), dialog.returnAnswer4(), dialog.returnAnswer5(), dialog.returnAnswer6(), dialog.returnAnswer7(), dialog.returnAnswer8()]
 
 
 def afficher(matrice):
@@ -80,7 +204,9 @@ def afficherPixelImage():
 
 nbImag = 1
 nbCouche = 0
-
+app = QtGui.QApplication([])
+window = Widget()
+sys.argv = window.getData()
 i1 = Image.open(nomImage(0))
 (limag, himag) = i1.size
 
@@ -142,4 +268,3 @@ print("Noubre de Couche ", nbCouche)
 #img.show()
 #afficher(mat)
 writeLog(mat)
-
