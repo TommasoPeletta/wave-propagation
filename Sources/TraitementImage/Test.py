@@ -1,14 +1,19 @@
 from PIL import Image
 from PyQt4 import QtGui, QtCore
 import sys
+import os
+
 
 # Commande pour lancer le code : python3 Test.py 1000 1000 1002 1002 5 10 1 7
 # python3 nomDuCode startX startY endX endY precision EspaceImage IndiceRefractionBas indiceRefractionHaut
-
+directory = "./"
+startdir = os.getcwd()
 class Widget(QtGui.QDialog) :
 
     def __init__(self, parent=None):
         super(Widget, self).__init__(parent)
+
+        global directory
 
         self.answer1 = QtGui.QLabel()
         q1Edit = QtGui.QLineEdit()
@@ -42,6 +47,8 @@ class Widget(QtGui.QDialog) :
         q8Edit = QtGui.QLineEdit()
         q8Edit.textChanged.connect(self.q8Changed)
 
+        #self.answer9 = QtGui.QLabel()
+        global grid
         grid = QtGui.QGridLayout()
         grid.setSpacing(20)
 
@@ -69,13 +76,25 @@ class Widget(QtGui.QDialog) :
         grid.addWidget(QtGui.QLabel('Top refraction index'), 8, 0)
         grid.addWidget(q8Edit, 8, 1)
 
+        seldir = QtGui.QPushButton('Select directory of images', self)
+        seldir.clicked.connect(self.selectdir)
+        #self.q9Changed(directory)
+
         applyBtn = QtGui.QPushButton('Apply', self)
         applyBtn.clicked.connect(self.close)
 
-        grid.addWidget(applyBtn,9,2)
+        self.path = QtGui.QLabel(startdir)
+        grid.addWidget(seldir,9,0)
+        grid.addWidget(self.path, 9,1)
+        grid.addWidget(applyBtn,10,2)
         self.setLayout(grid)
-        self.setGeometry(300, 300, 350, 800)
+        self.setGeometry(300, 300, 600, 800)
         self.setWindowTitle("refraction index convertion")
+
+    def selectdir(self):
+        global directory
+        directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.path.setText(directory)
 
     def q1Changed(self, text):
         self.answer1.setText(text)
@@ -101,6 +120,9 @@ class Widget(QtGui.QDialog) :
     def q8Changed(self, text):
         self.answer8.setText(text)
 
+#    def q9Changed(self, text):
+#        self.answer9.setText(text)
+
     def returnAnswer1(self):
         return self.answer1.text()
 
@@ -125,11 +147,14 @@ class Widget(QtGui.QDialog) :
     def returnAnswer8(self):
         return self.answer8.text()
 
+    #def returnAnswer9(self):
+    #    return self.answer9.text()
+
     @staticmethod
     def getData(parent=None):
         dialog = Widget(parent)
         dialog.exec_()
-        return ['Test.py',dialog.returnAnswer1(), dialog.returnAnswer2(), dialog.returnAnswer3(), dialog.returnAnswer4(), dialog.returnAnswer5(), dialog.returnAnswer6(), dialog.returnAnswer7(), dialog.returnAnswer8()]
+        return ['Test.py',dialog.returnAnswer1(), dialog.returnAnswer2(), dialog.returnAnswer3(), dialog.returnAnswer4(), dialog.returnAnswer5(), dialog.returnAnswer6(), dialog.returnAnswer7(), dialog.returnAnswer8(), directory]
 
 
 def afficher(matrice):
@@ -157,6 +182,7 @@ def nomImage(num):
 
 
 def writeLog(matrice):
+    os.chdir(startdir)
     file = open("logfile.txt","r+")
     file.truncate(0)
     for l in range(nbCouche):
@@ -207,12 +233,11 @@ nbCouche = 0
 app = QtGui.QApplication([])
 window = Widget()
 sys.argv = window.getData()
-i1 = Image.open(nomImage(0))
-(limag, himag) = i1.size
+
 
 #Gestion des erreurs des paramètres.
 messageErreur = "L'éxécution doit être sous cette forme : ''python3 Test.py debutX debutY finX finY précisionDésiré précisionEntreLesImages indiceRefractionBas indiceRefractionHaut''. "
-if len(sys.argv)!=9:
+if len(sys.argv)!=10:
     print("Le noumbre d'argument n'est pas correcte.", messageErreur)
     sys.exit(0)
 else:
@@ -224,12 +249,17 @@ else:
     EspaceImage = float(sys.argv[6]) #Précision entre les images fournies.
     bornInf = float(sys.argv[7]) #indice de réfraction le plus faible
     bornSup = float(sys.argv[8]) #indice de réfraction le plus haut
+    chemin = str(sys.argv[9])
+    os.chdir(chemin)
+    i1 = Image.open(nomImage(0))
+    (limag, himag) = i1.size
 if (startX<0 or startY<0 or endX < 0 or endY<0):
     print("Erreur, vous avez donné une position dans l'image néagative.")
     sys.exit(0)
 elif (startX>limag or startY>himag or endX>limag or endY>himag or startX>endX or startY>endY):
     print("Erreur, les dimensions du cropage sont incorrectes. L'image fait de taille ", limag, " x ", himag)
     sys.exit(0)
+
 
 #Initialisation de taille des matrices
 tailleMatriceX = endX-startX
