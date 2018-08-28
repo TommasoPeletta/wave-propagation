@@ -194,29 +194,64 @@ def writeLog(matrice):
         #file.write("\n")
     file.close()
 
-def calculeIndice(vPixel, bornInf, bornSup, limite):
-    if vPixel>limite:
+#Indique pour chaque pixel la valeur à prendre en indice de réfraction
+def calculeIndice(vPixel):
+    if vPixel>pMax: #pour du blanc
         indice = bornSup
-    else:
+    elif vPixel<pMin: #pour du gris foncé
         indice = bornInf
-    #indice = (pMax - vPixel)/(pMax-pMin) * (bornSup-bornInf)+bornInf
+    else: #Pour le gris claire
+        indice = (vPixel-pMin)/(pMax-pMin) *(bornSup-bornInf)+bornInf
     return indice
 
 def calculeMinAndMax():
-    pMin = 255
-    pMax = 0
+    histoTotal = [0 for i in range (256)]
+    # Calcul de l'histogramme de toutes les images combinées
     for n in range(0,nImageEtudie):
         imag = Image.open(nomImage(n))
         cropImag = imag.crop((startX,startY,endX,endY))
         histo = cropImag.histogram()
-        iter = 0
-        for el in histo:
-            if el != 0:
-                if pMin>iter:
-                    pMin = iter
-                if pMax<iter:
-                    pMax = iter
-            iter = iter + 1
+        for i in range(256):
+            histoTotal[i] = histoTotal[i] + histo[i]
+    print(len(histoTotal))
+    c1 = [0,0,0] # [position du centre de la partie,nombre de pixel dans cette partie, somme des valeur des pixels]
+    c2 = [0,0,0]
+    c3 = [0,0,0]
+    nvc1 = 60
+    nvc2 = 110
+    nvc3 = 150
+    while(c1[0] != nvc1 or c2[0] != nvc2 or c3[0] != nvc3):
+        c1 = [nvc1,0,0] # [position du centre de la partie,nombre de pixel dans cette partie, somme des valeur des pixels]
+        c2 = [nvc2,0,0]
+        c3 = [nvc3,0,0]
+        # Crée les ensembles de chaque partie
+        for i in range(256):
+            if(histoTotal[i] != 0):
+                if (abs(c1[0]-i)<=abs(c2[0]-i)):
+                    c1[1] = c1[1]+histoTotal[i]
+                    c1[2] = c1[2]+histoTotal[i]*i
+                elif (abs(c2[0]-i)<abs(c3[0]-i)):
+                    c2[1] = c2[1]+histoTotal[i]
+                    c2[2] = c2[2]+histoTotal[i]*i
+                else:
+                    c3[1] = c3[1]+histoTotal[i]
+                    c3[2] = c3[2]+histoTotal[i]*i
+	#Calcule du nouveau centre de chaque partie.
+        if c1[1]!=0:
+            nvc1 = c1[2]/c1[1]
+        else:
+            nvc1 = c1[0]
+        if c2[2]!=0:
+            nvc2 = c2[2]/c2[1]
+        else:
+            nvc2 = c2[0]
+        if c3[1]!=0:
+            nvc3 = c3[2]/c3[1]
+        else:
+            nvc3 =  c3[0]
+#calcule de la limite entre la partie 1 et 2 (c-à-d la limite du gris foncé) et la limite entre la partie 2 et 3 (c-à-d la limite du blanc)
+    pMin = int((nvc2-nvc1)/2+nvc1)
+    pMax = int((nvc3-nvc2)/2+nvc2)
     return pMin,pMax
 
 def afficherPixelImage():
@@ -269,11 +304,10 @@ tailleMatriceY = endY-startY
 nbImag = 1
 nbCouche = 0
 nImageEtudie = 5
-limite = 121
-#Calcule de la partie de l'histogramme utilisé
-#[pMin,pMax] = calculeMinAndMax()
 
-#afficherPixelImage()
+#Calcule des limites du gris claire et du blanc
+[pMin,pMax] = calculeMinAndMax()
+
 
 mat = [[[0 for i in range (200)] for j in range (tailleMatriceY)] for k in range (tailleMatriceX)]
 for w in range(1,nImageEtudie):
@@ -285,11 +319,10 @@ for w in range(1,nImageEtudie):
             for x in range(startX,endX,1):
                 c1 = i1.getpixel((x,y))
                 c2 = i2.getpixel((x,y))
-                #indice1 = calculeIndice(c1,bornInf, bornSup,limite)
-                #indice2 = calculeIndice(c2,bornInf, bornSup,limite)
+
                 # fait l'appproximation linéaire
                 vPixel = (10-(nbCouche*precision-(nbImag-2)*10))/10*c1+(10-((nbImag-1)*10-nbCouche*precision))/10*c2
-                ind = calculeIndice(vPixel, bornInf, bornSup, limite)
+                ind = calculeIndice(vPixel)
                 mat[x-startX][y-startY][nbCouche] = ind
         nbCouche = nbCouche + 1
     i1 = i2
