@@ -309,7 +309,7 @@ elif (startX>limag or startY>himag or endX>limag or endY>himag or startX>endX or
     print("Erreur, les dimensions du cropage sont incorrectes. L'image fait de taille ", limag, " x ", himag)
     sys.exit(0)
 
-newWindow()
+
 #Initialisation de taille des matrices
 tailleMatriceX = endX-startX
 tailleMatriceY = endY-startY
@@ -345,3 +345,4 @@ print("Noubre de Couche ", nbCouche)
 #img.show()
 #afficher(mat)
 writeLog(mat)
+newWindow()
