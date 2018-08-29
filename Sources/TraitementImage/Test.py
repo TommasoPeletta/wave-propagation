@@ -222,6 +222,12 @@ def writeLog(matrice):
     os.chdir(startdir)
     file = open("logfile.txt","r+")
     file.truncate(0)
+    file.write(str(tailleMatriceX))
+    file.write(" ")
+    file.write(str(tailleMatriceY))
+    file.write(" ")
+    file.write(str(nbCouche))
+    file.write(" ")
     for l in range(nbCouche):
         for f in range(tailleMatriceY):
             for g in range(tailleMatriceX):
