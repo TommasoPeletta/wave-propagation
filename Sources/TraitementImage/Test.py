@@ -186,10 +186,33 @@ def nomImage(num):
         s2 = saux1+s2
     return s1+s2+s3
 
-def newWindow():
+def newWindow(nC):
     msg = QtGui.QMessageBox()
     msg.setIcon(QtGui.QMessageBox.Information)
     msg.setText("Images' refraction index have been converted successfully")
+    msginfo1 = str(nC)
+    msginfo2 = "Number of layers: "
+    msginfo = msginfo2 + msginfo1
+    msg.setInformativeText(msginfo)
+    msg.setStandardButtons(QtGui.QMessageBox.Ok)
+    #msg.buttonClicked.connect(msgbtn)
+    retval = msg.exec_()
+
+def errorwind(nerror):
+    msg = QtGui.QMessageBox()
+    msg.setIcon(QtGui.QMessageBox.Critical)
+    if (nerror == 1):
+        msg.setText("Error, number of arguments does not match.")
+        msg.setInformativeText("Please fill all blank spaces")
+    elif (nerror == 2):
+        msg.setText("Error, negative coordinates are not allowed.")
+    elif (nerror == 3):
+        msginfo1 = "Error, position indexes out of range. Image size:  "
+        msginfo2 = str(limag)
+        msginfo3 = " x "
+        msginfo4 = str(himag)
+        msginfo = msginfo1 + msginfo2 + msginfo3 + msginfo4
+        msg.setText(msginfo)
     msg.setStandardButtons(QtGui.QMessageBox.Ok)
     #msg.buttonClicked.connect(msgbtn)
     retval = msg.exec_()
@@ -227,7 +250,7 @@ def calculeMinAndMax():
         histo = cropImag.histogram()
         for i in range(256):
             histoTotal[i] = histoTotal[i] + histo[i]
-    print(len(histoTotal))
+    #print(len(histoTotal))
     c1 = [0,0,0] # [position du centre de la partie,nombre de pixel dans cette partie, somme des valeur des pixels]
     c2 = [0,0,0]
     c3 = [0,0,0]
@@ -285,28 +308,31 @@ sys.argv = window.getData()
 
 
 #Gestion des erreurs des paramètres.
-messageErreur = "L'éxécution doit être sous cette forme : ''python3 Test.py debutX debutY finX finY précisionDésiré précisionEntreLesImages indiceRefractionBas indiceRefractionHaut''. "
-if len(sys.argv)!=10:
-    print("Le noumbre d'argument n'est pas correcte.", messageErreur)
-    sys.exit(0)
-else:
-    startX = int(sys.argv[1])
-    startY = int(sys.argv[2])
-    endX = int(sys.argv[3])
-    endY = int(sys.argv[4])
-    precision = float(sys.argv[5])# Précision désiré lors de l'approximation linéaire
-    EspaceImage = float(sys.argv[6]) #Précision entre les images fournies.
-    bornInf = float(sys.argv[7]) #indice de réfraction le plus faible
-    bornSup = float(sys.argv[8]) #indice de réfraction le plus haut
-    chemin = str(sys.argv[9])
-    os.chdir(chemin)
-    i1 = Image.open(nomImage(0))
-    (limag, himag) = i1.size
+#messageErreur = "L'éxécution doit être sous cette forme : ''python3 Test.py debutX debutY finX finY précisionDésiré précisionEntreLesImages indiceRefractionBas indiceRefractionHaut''. "
+for i in range(0,10):
+    if (sys.argv[i] == ""):
+        errorwind(1)
+    #print("Le noumbre d'argument n'est pas correcte.", messageErreur)
+        sys.exit(0)
+startX = int(sys.argv[1])
+startY = int(sys.argv[2])
+endX = int(sys.argv[3])
+endY = int(sys.argv[4])
+precision = float(sys.argv[5])# Précision désiré lors de l'approximation linéaire
+EspaceImage = float(sys.argv[6]) #Précision entre les images fournies.
+bornInf = float(sys.argv[7]) #indice de réfraction le plus faible
+bornSup = float(sys.argv[8]) #indice de réfraction le plus haut
+chemin = str(sys.argv[9])
+os.chdir(chemin)
+i1 = Image.open(nomImage(0))
+(limag, himag) = i1.size
 if (startX<0 or startY<0 or endX < 0 or endY<0):
-    print("Erreur, vous avez donné une position dans l'image néagative.")
+    errorwind(2)
+    #print("Erreur, vous avez donné une position dans l'image néagative.")
     sys.exit(0)
 elif (startX>limag or startY>himag or endX>limag or endY>himag or startX>endX or startY>endY):
-    print("Erreur, les dimensions du cropage sont incorrectes. L'image fait de taille ", limag, " x ", himag)
+    errorwind(3)
+    #print("Erreur, les dimensions du cropage sont incorrectes. L'image fait de taille ", limag, " x ", himag)
     sys.exit(0)
 
 
@@ -341,8 +367,8 @@ for w in range(1,nImageEtudie):
         nbCouche = nbCouche + 1
     i1 = i2
 
-print("Noubre de Couche ", nbCouche)
+
 #img.show()
 #afficher(mat)
 writeLog(mat)
-newWindow()
+newWindow(nbCouche)
