@@ -9,6 +9,7 @@ import os
 # Commande pour lancer le code : python3 Test.py 1000 1000 1002 1002 5 10 1 7
 # python3 nomDuCode startX startY endX endY precision EspaceImage IndiceRefractionBas indiceRefractionHaut
 directory = "./"
+directory2 = "./"
 startdir = os.getcwd()
 
 class Widget(QtGui.QDialog) :
@@ -17,6 +18,7 @@ class Widget(QtGui.QDialog) :
         super(Widget, self).__init__(parent)
 
         global directory
+        global directory2
 
         self.answer1 = QtGui.QLabel()
         q1Edit = QtGui.QLineEdit()
@@ -81,6 +83,8 @@ class Widget(QtGui.QDialog) :
 
         seldir = QtGui.QPushButton('Select directory of images', self)
         seldir.clicked.connect(self.selectdir)
+        seldir2 = QtGui.QPushButton('Select directory where logfile will be created or updated', self)
+        seldir2.clicked.connect(self.selectdir2)
         #self.q9Changed(directory)
 
         applyBtn = QtGui.QPushButton('Apply', self)
@@ -88,18 +92,39 @@ class Widget(QtGui.QDialog) :
         #applyBtn.clicked.connect(self.close)
 
         self.path = QtGui.QLabel(startdir)
+        self.path2 = QtGui.QLabel(startdir)
         grid.addWidget(seldir,9,0)
         grid.addWidget(self.path, 9,1)
-        grid.addWidget(applyBtn,10,2)
+        grid.addWidget(seldir2,10,0)
+        grid.addWidget(self.path2, 10,1)
+        grid.addWidget(applyBtn,11,2)
         self.setLayout(grid)
         self.setGeometry(300, 300, 600, 800)
         self.setWindowTitle("refraction index convertion")
+        app.aboutToQuit.connect(self.closeEvent)
 
 
     def selectdir(self):
         global directory
         directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.path.setText(directory)
+
+    def selectdir2(self):
+        global directory2
+        directory2 = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.path2.setText(directory2)
+
+
+    def closeEvent(self, event):
+        msg = QtGui.QMessageBox()
+        msg.setIcon(QtGui.QMessageBox.Critical)
+        msg.setText("The progam has been shut down")
+        msg.setStandardButtons(QtGui.QMessageBox.Ok)
+        #msg.buttonClicked.connect(msgbtn)
+        retval = msg.exec_()
+        sys.exit(0)
+
+
 
     def q1Changed(self, text):
         self.answer1.setText(text)
@@ -219,7 +244,7 @@ def errorwind(nerror):
 
 
 def writeLog(matrice):
-    os.chdir(startdir)
+    os.chdir(directory2)
     file = open("logfile.txt","w+")
     file.truncate(0)
     file.write(str(tailleMatriceX))

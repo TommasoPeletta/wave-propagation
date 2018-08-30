@@ -386,7 +386,7 @@ void Hynobius(){
   ifHynobius = false;
   char *buffer = 0;
   char* aux;
-  chdir("./TraitementImage");
+//  chdir("./TraitementImage");
   FILE *f = fopen("logfile.txt","r");
   if (f)
   {
