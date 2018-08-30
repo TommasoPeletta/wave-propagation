@@ -51,7 +51,7 @@ type_coeff_reffrac tabl_rho; // matrix containg the sum of the fi entering the s
 
 
 
-// Allocation of the different matrix which be use by the program.
+// Allocation of all matrix that are used by the program.
 void allocate(){
   if (ifHynobius){
     sizeX = 100;
@@ -403,6 +403,7 @@ void Hynobius(){
 
   if (buffer)
   {
+    //printf("%s\n", buffer );
     aux = strtok(buffer, " ");
     sizeX = atoi(aux);
     aux = strtok(NULL, " ");
@@ -437,14 +438,13 @@ int main( int argc, char **argv ) {
   allocate();
   define_fin(f_in);
   defmatrix(beta);
-  beta_initialization();
+  //beta_initialization();
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
-  tabl_n[5][5][5] = 0.5;
-  for (int i = 1; i <= 5;i++){
+  tabl_n[5][5][4] = 0.5;
+  for (int i = 1; i <= 50;i++){
     rho_max = 0;
     foutComputation(tabl_n,v,vi,f_in,i);
-    afficher(f_in, 4);
   }
-
+  afficher(f_in, 4);
   return 0;
 }
