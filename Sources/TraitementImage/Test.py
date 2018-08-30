@@ -220,7 +220,7 @@ def errorwind(nerror):
 
 def writeLog(matrice):
     os.chdir(startdir)
-    file = open("logfile.txt","r+")
+    file = open("logfile.txt","w+")
     file.truncate(0)
     file.write(str(tailleMatriceX))
     file.write(" ")
