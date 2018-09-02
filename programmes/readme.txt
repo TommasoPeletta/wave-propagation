@@ -1,4 +1,5 @@
-
+Ce fichier regroupe les explications de l'utilisation des deux programme décrits dans le documents "Projet salamandre".
+Y est ajouté une description d'un troisième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
 
 Refraction_Indexes_Converter.py :
 
@@ -10,7 +11,7 @@ Une fois le code exécuté, l'utilisateur doit rentrer les paramètres demandés
 -EndX : le point sur l'axe x qui définit la fin de la zone de l'image à considérer
 -EndY : le point sur l'axe y qui définit la fin de la zone de l'image à considérer
 -Distance between two pixels of the image : définit la distance en nanomètres entre deux pixels
--Distance between two layers : definit la distance en nanomètres entre deux couches
+-Distance between two layers : définit la distance en nanomètres entre deux couches
 -White refraction index : indice de réfraction de la partie plus claire de l'image
 -Black refraction index : indice de réfraction de la partie plus sombre de l'image
 -Number of images : nombre d'images dont on doit effectuer la conversion
