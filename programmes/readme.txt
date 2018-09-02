@@ -32,3 +32,51 @@ La gestion des conditions au bord se fait dans la procédure vector_cpy et à l'
 
 Pour compiler le programme, il faut utiliser la commande : make 3d_wave
 Il est alors possible de lancer le programme avec la commande : ./wave
+
+
+Refraction_Indexes_Converter.py :
+
+Refraction_Indexes_Converter.py est un fichier qui extraits les indices de refraction de plusieur couche du tissu des poches d'oeufs de salamandre Hida à partir d'une image.
+Le programme ecrir les données collectées dans un fichier logfile.txt.
+Une fois executé le code l'utilisateur doit rentrer les paramètres demandé par la GUI, en particulier :
+-StartX : le point de depapart sur l'asse x pour definir la zone de l'image à considerer 
+-StartY : le point de depapart sur l'asse y pour definir la zone de l'image à considerer
+-EndX : le point sur l'asse x qui definit le fin de la zona de l'image à considerer
+-EndY : le point sur l'asse y qui definit le fin de la zona de l'image à considerer
+-Distance between two pixels of the image : definit la distance en nanomèntre entre deux pixel
+-Distance between two layers : definit la distance en nanomètre entre deux couche
+-White refraction index : indice de refraction de la partie plus blanche de l'image
+-Black refraction index : indice de refraction de la partie plus sombre de l'image
+-Number of images : nombre d'image dont effectuer la conversion
+
+Execution du programme : 
+(pour Linux)
+le code peut etre executer directement à partire du fichier executable Refracrion_Index_Converter.
+Il peut aussi etre executer depuis la ligne de commande : python3 Refraction_Index_Converter.py
+
+(pour Window)
+Le code peut etre executer à partir de python IDLE (https://www.python.org/downloads)
+
+Prerequisit pour executer le programme (pas requis si lancer depuis l'executable) :
+- librarie PIL
+- librarie PyQt4 (sudo apt-get install python3-PyQt4)
+
+Ecriture du logfile :
+Le logfile contiene la dimension de la matrice contenent les indices de refraction (sizeX, sizeY, sizeZ), et les indice de refraction de la matière. Tout les données sont separer par un espace " ".
+les indice de refraction sont ecrir dans l'ordre de cette boucle:
+
+for l in range(sizeZ):
+        for f in range(sizeY):
+            for g in range(sizeX):
+                file.write(str(matrice[g][f][l]))
+                file.write(" ")
+
+Attention!
+L'execution du code ce terminè par une l'affichage d'une fenetre pop-up. (il peut prends beaucoup de temps si beaucoup d'image sont donnèe)
+
+
+
+
+
+
+
