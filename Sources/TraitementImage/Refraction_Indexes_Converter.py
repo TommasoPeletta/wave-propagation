@@ -8,10 +8,15 @@ import os
 
 # Commande pour lancer le code : python3 Test.py 1000 1000 1002 1002 5 10 1 7
 # python3 nomDuCode startX startY endX endY precision EspaceImage IndiceRefractionBas indiceRefractionHaut
-directory = "./"
-directory2 = "./"
-startdir = os.getcwd()
-buttonx = 0
+directory = "./"    #rapresenting the directory containing the images to convert
+directory2 = "./"   #rapresenting the directory where the log file will be created
+startdir = os.getcwd() #current directory
+buttonx = 0      #boolean defining if the event closewindow is triggered by the X button or by the apply button.
+
+
+
+#class Widget define the main window of the GUI and his fonction.
+
 
 class Widget(QtGui.QDialog) :
 
@@ -21,47 +26,48 @@ class Widget(QtGui.QDialog) :
         global directory
         global directory2
 
-        self.answer1 = QtGui.QLabel()
+        self.answer1 = QtGui.QLabel()   #defining startx point labels
         q1Edit = QtGui.QLineEdit()
         q1Edit.textChanged.connect(self.q1Changed)
 
-        self.answer2 = QtGui.QLabel()
+        self.answer2 = QtGui.QLabel()   #defining starty point labels
         q2Edit = QtGui.QLineEdit()
         q2Edit.textChanged.connect(self.q2Changed)
 
-        self.answer3 = QtGui.QLabel()
+        self.answer3 = QtGui.QLabel()   #defining endx point labels
         q3Edit = QtGui.QLineEdit()
         q3Edit.textChanged.connect(self.q3Changed)
 
-        self.answer4 = QtGui.QLabel()
+        self.answer4 = QtGui.QLabel()   #defining endy point labels
         q4Edit = QtGui.QLineEdit()
         q4Edit.textChanged.connect(self.q4Changed)
 
-        self.answer5 = QtGui.QLabel()
+        self.answer5 = QtGui.QLabel()   #defining distance between two pixels of the image labels
         q5Edit = QtGui.QLineEdit()
         q5Edit.textChanged.connect(self.q5Changed)
 
-        self.answer6 = QtGui.QLabel()
+        self.answer6 = QtGui.QLabel()   #defining distance between two layers labels
         q6Edit = QtGui.QLineEdit()
         q6Edit.textChanged.connect(self.q6Changed)
 
-        self.answer7 = QtGui.QLabel()
+        self.answer7 = QtGui.QLabel()   #defining white refraction index labels
         q7Edit = QtGui.QLineEdit()
         q7Edit.textChanged.connect(self.q7Changed)
 
-        self.answer8 = QtGui.QLabel()
+        self.answer8 = QtGui.QLabel()   #defining black refraction index labels
         q8Edit = QtGui.QLineEdit()
         q8Edit.textChanged.connect(self.q8Changed)
 
-        self.answer9 = QtGui.QLabel()
+        self.answer9 = QtGui.QLabel()   #defining numbers of images labels
         q9Edit = QtGui.QLineEdit()
         q9Edit.textChanged.connect(self.q9Changed)
 
-        #self.answer9 = QtGui.QLabel()
+
         global grid
         grid = QtGui.QGridLayout()
         grid.setSpacing(20)
 
+        #definition of all labels
         grid.addWidget(QtGui.QLabel('StartX'), 1, 0)
         grid.addWidget(q1Edit, 1, 1)
 
@@ -80,7 +86,7 @@ class Widget(QtGui.QDialog) :
         grid.addWidget(QtGui.QLabel('Distance between two layers'), 6, 0)
         grid.addWidget(q6Edit, 6, 1)
 
-        grid.addWidget(QtGui.QLabel('White refraction index '), 7, 0)
+        grid.addWidget(QtGui.QLabel('White refraction index'), 7, 0)
         grid.addWidget(q7Edit, 7, 1)
 
         grid.addWidget(QtGui.QLabel('Black refraction inde'), 8, 0)
@@ -89,17 +95,19 @@ class Widget(QtGui.QDialog) :
         grid.addWidget(QtGui.QLabel('Number of images'), 9, 0)
         grid.addWidget(q9Edit, 9, 1)
 
+        #definition of select directory buttons
         seldir = QtGui.QPushButton('Select directory of images', self)
         seldir.clicked.connect(self.selectdir)
+
         seldir2 = QtGui.QPushButton('Select directory where logfile will be created or updated', self)
         seldir2.clicked.connect(self.selectdir2)
-        #self.q9Changed(directory)
 
+        #definition of Apply button (trigger the fonction apply and the event closeWindow)
         applyBtn = QtGui.QPushButton('Apply', self)
         applyBtn.clicked.connect(self.apply)
         applyBtn.clicked.connect(self.close)
-        #applyBtn.clicked.connect(self.close)
 
+        #definition of starting properties of the window
         self.path = QtGui.QLabel(startdir)
         self.path2 = QtGui.QLabel(startdir)
         grid.addWidget(seldir,10,0)
@@ -112,22 +120,24 @@ class Widget(QtGui.QDialog) :
         self.setWindowTitle("refraction index convertion")
         app.aboutToQuit.connect(self.closeEvent)
 
-
+    #fonction apply set the closeEvent boolean to 1
     def apply(self):
         global buttonx
         buttonx = 1
 
+    #select the directory and store the path into the variable directory
     def selectdir(self):
         global directory
         directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.path.setText(directory)
 
+    #select the directory and store the path into the variable directory2
     def selectdir2(self):
         global directory2
         directory2 = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
         self.path2.setText(directory2)
 
-
+    #show a message box if the buttonx variable is set to 0
     def closeEvent(self, event):
         if (buttonx == 0):
             msg = QtGui.QMessageBox()
@@ -138,7 +148,7 @@ class Widget(QtGui.QDialog) :
             retval = msg.exec_()
             sys.exit(0)
 
-
+# set all data entered by the user
     def q1Changed(self, text):
         self.answer1.setText(text)
 
@@ -166,9 +176,8 @@ class Widget(QtGui.QDialog) :
     def q9Changed(self, text):
         self.answer9.setText(text)
 
-#    def q9Changed(self, text):
-#        self.answer9.setText(text)
 
+    #return all data set by the user
     def returnAnswer1(self):
         return self.answer1.text()
 
@@ -196,9 +205,7 @@ class Widget(QtGui.QDialog) :
     def returnAnswer9(self):
         return self.answer9.text()
 
-    #def returnAnswer9(self):
-    #    return self.answer9.text()
-
+    #return all the data entered by the user in a list. The first member of the list is the name of the file (sys.argv[1])
     @staticmethod
     def getData(parent=None):
         dialog = Widget(parent)
@@ -206,15 +213,9 @@ class Widget(QtGui.QDialog) :
         return ["Refraction_Indexes_Converter.py", dialog.returnAnswer1(), dialog.returnAnswer2(), dialog.returnAnswer3(), dialog.returnAnswer4(), dialog.returnAnswer5(), dialog.returnAnswer6(), dialog.returnAnswer7(), dialog.returnAnswer8(),directory, dialog.returnAnswer9()]
 
 
-
-#def afficher(matrice):
-#    for k in range(nbCouche):
-#        for x in range(tailleMatriceX):
-#            for y in range(tailleMatriceY):
-#                print(matrice[x][y][k], end=' ')
-#            print("")
-#        print("")
-
+#The fonction nomImage take as parameter num that correspond to the number of image that is currently treatise
+#this fonction return the name of the image corresponding to the number num.
+#the Image must be in the format Hynobius FIB SEM dataXXXX.tif, where X is an integer
 def nomImage(num):
     s1 = "Hynobius FIB SEM data"
     s3 = ".tif"
@@ -230,6 +231,7 @@ def nomImage(num):
         s2 = saux1+s2
     return s1+s2+s3
 
+#show a message box (information)
 def newWindow(nC):
     msg = QtGui.QMessageBox()
     msg.setIcon(QtGui.QMessageBox.Information)
@@ -239,9 +241,10 @@ def newWindow(nC):
     msginfo = msginfo2 + msginfo1
     msg.setInformativeText(msginfo)
     msg.setStandardButtons(QtGui.QMessageBox.Ok)
-    #msg.buttonClicked.connect(msgbtn)
     retval = msg.exec_()
 
+
+#show a message box (Critical)
 def errorwind(nerror):
     msg = QtGui.QMessageBox()
     msg.setIcon(QtGui.QMessageBox.Critical)
@@ -258,10 +261,11 @@ def errorwind(nerror):
         msginfo = msginfo1 + msginfo2 + msginfo3 + msginfo4
         msg.setText(msginfo)
     msg.setStandardButtons(QtGui.QMessageBox.Ok)
-    #msg.buttonClicked.connect(msgbtn)
     retval = msg.exec_()
 
-
+#The fonction writeLog create or uptade a file named logfile.txt.
+#this file contain SizeX, SizeY, SizeZ and all the refrction indexes of the image treatised.
+#all datas are parsed by a space " "
 def writeLog(matrice):
     os.chdir(directory2)
     file = open("logfile.txt","w+")

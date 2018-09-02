@@ -523,7 +523,7 @@ choose the matrix initialisation for each experience
 
       /*
       if(i%10 == 0){                code for the extraction of the values of certains points in ampl.txt
-          outfile1<<fixed<< i<<"   "<<fixed<<tabl_rho[0][283]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 12]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 60]<<endl; //écrire dans le fichier text les valeurs à plot
+          outfile1<<fixed<< i<<"   "<<fixed<<tabl_rho[0][283]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 12]<<"   "<<fixed<<tabl_rho[0][sizeY/2 + 60]<<endl; 
       }*/
       /*
       if(i%10 == 0){                  // code for printing snapshot of the wave
