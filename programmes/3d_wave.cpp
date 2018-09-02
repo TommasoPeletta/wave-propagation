@@ -2,7 +2,6 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <GL/glut.h>
 #include <cstdlib>
 #include <stdio.h>
 #include <stdlib.h>
@@ -204,31 +203,43 @@ void vector_cpy(type_F f_out, type_F f_in){
 
             case 1 :  if (j != (sizeY-1)) {
                         f_in[i][j+1][z][k] = beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[i][0][z][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
 
             case 2 :  if (i != 0) {
                         f_in[i-1][j][z][k] = beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[sizeX-1][j][z][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
 
             case 3 :  if (j != 0) {
                         f_in[i][j-1][z][k] =beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[i][sizeY-1][z][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
 
             case 4 :  if (i != (sizeX-1)) {
                         f_in[i+1][j][z][k] =beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[0][j][z][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
 
             case 5 :  if (z != 0) {
                         f_in[i][j][z-1][k] =beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[i][j][sizeZ-1][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
 
             case 6 :  if (z != (sizeZ-1)) {
                         f_in[i][j][z+1][k] =beta[i][j][z] * f_out[i][j][z][k];
+                      } else {
+                        f_in[i][j][0][k] = beta[i][j][z] * f_out[i][j][k][z];
                       }
                       break;
           }
@@ -346,7 +357,6 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
       }
     }
   }
-  //cout << endl;
   vector_cpy(f_out, f_in);
 }
 
@@ -421,11 +431,11 @@ int main( int argc, char **argv ) {
   define_fin(f_in);
   defmatrix(beta);
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
-  tabl_n[5][5][4] = 0.5;
+  //tabl_n[5][5][4] = 0.5;              // this line would create a source point and erase the refraction coefficient of the point [5][5][4]
   for (int i = 1; i <= 50;i++){
     rho_max = 0;
     foutComputation(tabl_n,v,vi,f_in,i);
   }
-  afficher(f_in, 4);
+  //afficher(f_in, 4);
   return 0;
 }

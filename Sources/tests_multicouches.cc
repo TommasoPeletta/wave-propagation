@@ -600,7 +600,7 @@ void fill_space(type_coeff_reffrac matrix, double in) {
     cout << "reflexivité : " << ampl1/ampl_incident - 1 << "\n";
 
 
-    system("gnuplot -p -e \"plot 'ampl2.txt'\"");
+    //system("gnuplot -p -e \"plot 'ampl2.txt'\"");
     return 0;
 
 }
