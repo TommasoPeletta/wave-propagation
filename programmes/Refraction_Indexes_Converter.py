@@ -8,8 +8,8 @@ import os
 
 # Command to launch the program : python3 Refraction_Indexes_Converter.py
 
-directory = "./"    #rapresenting the directory containing the images to convert
-directory2 = "./"   #rapresenting the directory where the log file will be created
+directory = "./"    #representing the directory containing the images to convert
+directory2 = "./"   #representing the directory where the log file will be created
 startdir = os.getcwd() #current directory
 buttonx = 0      #boolean defining if the event closewindow is triggered by the X button or by the apply button.
 
