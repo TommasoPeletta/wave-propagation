@@ -9,8 +9,8 @@ import os
 # Command to launch the program : python3 Refraction_Indexes_Converter.py
 
 directory = "./"    #representing the directory containing the images to convert
-directory2 = "./"   #representing the directory where the log file will be created
 startdir = os.getcwd() #current directory
+directory2 = startdir   #representing the directory where the log file will be created
 buttonx = 0      #boolean defining if the event closewindow is triggered by the X button or by the apply button.
 
 
@@ -355,7 +355,7 @@ def calculeMinAndMax():
 
 
 
-nbImag = 1 #represent the nombre of picture that were already used for the génération of refraction index layer 
+nbImag = 1 #represent the nombre of picture that were already used for the génération of refraction index layer
 nbCouche = 0 #represent the nombre of refraction index layer calculate
 app = QtGui.QApplication([])
 window = Widget()
