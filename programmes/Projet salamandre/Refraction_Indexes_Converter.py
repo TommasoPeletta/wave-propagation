@@ -89,7 +89,7 @@ class Widget(QtGui.QDialog) :
         grid.addWidget(QtGui.QLabel('White refraction index'), 7, 0)
         grid.addWidget(q7Edit, 7, 1)
 
-        grid.addWidget(QtGui.QLabel('Black refraction inde'), 8, 0)
+        grid.addWidget(QtGui.QLabel('Black refraction index'), 8, 0)
         grid.addWidget(q8Edit, 8, 1)
 
         grid.addWidget(QtGui.QLabel('Number of images'), 9, 0)
