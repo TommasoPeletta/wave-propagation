@@ -432,7 +432,7 @@ int main( int argc, char **argv ) {
   defmatrix(beta);
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
   //tabl_n[5][5][4] = 0.5;              // this line would create a source point and erase the refraction coefficient of the point [5][5][4]
-  for (int i = 1; i <= 50;i++){
+  for (int i = 1; i <= 1;i++){
     rho_max = 0;
     foutComputation(tabl_n,v,vi,f_in,i);
   }
