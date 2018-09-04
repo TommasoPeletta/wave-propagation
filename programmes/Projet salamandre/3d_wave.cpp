@@ -204,42 +204,42 @@ void vector_cpy(type_F f_out, type_F f_in){
             case 1 :  if (j != (sizeY-1)) {
                         f_in[i][j+1][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[i][0][z][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[i][0][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
 
             case 2 :  if (i != 0) {
                         f_in[i-1][j][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[sizeX-1][j][z][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[sizeX-1][j][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
 
             case 3 :  if (j != 0) {
                         f_in[i][j-1][z][k] =beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[i][sizeY-1][z][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[i][sizeY-1][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
 
             case 4 :  if (i != (sizeX-1)) {
                         f_in[i+1][j][z][k] =beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[0][j][z][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[0][j][z][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
 
             case 5 :  if (z != 0) {
                         f_in[i][j][z-1][k] =beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[i][j][sizeZ-1][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[i][j][sizeZ-1][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
 
             case 6 :  if (z != (sizeZ-1)) {
                         f_in[i][j][z+1][k] =beta[i][j][z] * f_out[i][j][z][k];
                       } else {
-                        f_in[i][j][0][k] = beta[i][j][z] * f_out[i][j][k][z];
+                        f_in[i][j][0][k] = beta[i][j][z] * f_out[i][j][z][k];
                       }
                       break;
           }
@@ -344,7 +344,6 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
             f_out[i][j][z][k] = Amplitude*sin(2*pi*frequence*iteration*deltaT);
           }
         } else {    //reflecting surfaces represented by a negative refraction coefficient
-          for (int k = 0; k < q+1; k++){
             f_out[i][j][z][0] = -f_in[i][j][z][0] * abs(tabl_n[i][j][z]);
             f_out[i][j][z][1] = -f_in[i][j][z][3] * abs(tabl_n[i][j][z]);
             f_out[i][j][z][2] = -f_in[i][j][z][4] * abs(tabl_n[i][j][z]);
@@ -352,11 +351,12 @@ void foutComputation(type_coeff_reffrac n, double v, double vi[q+1][3], type_F f
             f_out[i][j][z][4] = -f_in[i][j][z][2] * abs(tabl_n[i][j][z]);
             f_out[i][j][z][5] = -f_in[i][j][z][6] * abs(tabl_n[i][j][z]);
             f_out[i][j][z][6] = -f_in[i][j][z][5] * abs(tabl_n[i][j][z]);
-          }
         }
+        //printf("%d, %d, %d\n", i, j, z);
       }
     }
   }
+
   vector_cpy(f_out, f_in);
 }
 
@@ -386,17 +386,13 @@ void Hynobius(){
     long length = ftell (f);
     fseek (f, 0, SEEK_SET);
     buffer =(char*) malloc (length);
-    printf("%d\n", length);
-    printf("buffer : %s\n", buffer);
     if (buffer){
       fread (buffer, 1, length, f);
     }
     fclose (f);
   }
-  printf("%s\n", buffer);
 
   if (buffer){
-    //printf("%s\n", buffer );
     aux = strtok(buffer, "\n");
     aux = strtok(NULL, " ");
     sizeX = atoi(aux);
@@ -418,7 +414,6 @@ void Hynobius(){
     for (int i = 0; i < sizeZ; i++){
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < sizeX; k++){
-           //if( aux != NULL ) {
            if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){
             tabl_n[k][j][i] =(double) atof(aux);
             aux = strtok(NULL, " ");
@@ -427,51 +422,32 @@ void Hynobius(){
             if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){
               aux = strtok(NULL, "\n");
             }else {
-              cout << "i " << i << endl;
               aux = strtok(NULL, "\n");
-              cout << aux << endl;
             }
           }else if(k == sizeX-1 && j == sizeY-1){
             tabl_n[k][j][i] =(double) atof(aux);
-            //cout << aux << endl;
-          //  aux = strtok(NULL, "\n");
-            //cout << aux << endl;
             if (i != sizeZ-1){
               aux = strtok(NULL,"\n");
-            //  cout << aux << endl;
+
               aux = strtok(NULL, " ");
             }
-          //  cout << aux << endl;
         }
 
         }
       }
-    //aux2 = strtok(NULL,"\n");
     }
 
     cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
-    for (int i = 0; i < sizeZ; i++){
-      for (int j = 0; j < sizeY; j++){
-        for (int k = 0; k < sizeX; k++){
-          printf("%f",tabl_n[k][j][i]);
-          printf("%s", " ");
-        }
-        printf("%s%d\n", "ligne ", j);
-      }
-      printf("%d\n", i);
-    }
-    cout << "Fini affichage" << endl;
+
   } else {
-    cout << "else" << endl;
+    cout << "erreur : buffer vide" << endl;
   }
   buffer = NULL;
-  cout << "FINI FINI" << endl;
 }
 
 
 int main( int argc, char **argv ) {
   Hynobius();
-  cout << "fini Hynobius" << endl;
 
   allocate();
 
@@ -484,7 +460,7 @@ int main( int argc, char **argv ) {
              // this line would create a source point and erase the refraction coefficient of the point [5][5][4]
   for (int i = 1; i <= 1;i++){
     rho_max = 0;
-    //foutComputation(tabl_n,v,vi,f_in,i);
+    foutComputation(tabl_n,v,vi,f_in,i);
   }
 
   //afficher(f_in, 4);
