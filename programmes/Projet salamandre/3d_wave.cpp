@@ -393,6 +393,7 @@ void Hynobius(){
   }
 
   if (buffer){
+    // parsing sizeX sizeY sizeZ
     aux = strtok(buffer, "\n");
     aux = strtok(NULL, " ");
     sizeX = atoi(aux);
@@ -403,7 +404,9 @@ void Hynobius(){
     aux = strtok(NULL, "\n");
     aux = strtok(NULL, "\n");
     aux = strtok(NULL, "\n");
+    //parsing refraction indexes
     aux = strtok(NULL, " ");
+    //allocating tabl_n
     tabl_n = (double***)malloc(sizeX * sizeof(double **));
     for (int index = 0;index < sizeX; index++){
       tabl_n[index] = (double **)malloc(sizeY*sizeof(double*));
@@ -411,20 +414,21 @@ void Hynobius(){
         tabl_n[index][i] = (double *)malloc(sizeZ*sizeof(double));
       }
     }
+    //parsing refraction indexes
     for (int i = 0; i < sizeZ; i++){
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < sizeX; k++){
-           if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){
+           if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){ //default case
             tabl_n[k][j][i] =(double) atof(aux);
             aux = strtok(NULL, " ");
-          }else if(k == sizeX-2){
+          }else if(k == sizeX-2){ //last element of the line
             tabl_n[k][j][i] =(double) atof(aux);
-            if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){
+            if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){ //last element
               aux = strtok(NULL, "\n");
             }else {
               aux = strtok(NULL, "\n");
             }
-          }else if(k == sizeX-1 && j == sizeY-1){
+          }else if(k == sizeX-1 && j == sizeY-1){ //last element of the current layer (index i, sizeZ)
             tabl_n[k][j][i] =(double) atof(aux);
             if (i != sizeZ-1){
               aux = strtok(NULL,"\n");
