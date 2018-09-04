@@ -234,7 +234,17 @@ def nomImage(num):
 def progbar(current, total, full_progbar):
     frac = current/total
     filled_progbar = round(frac*full_progbar)
+    print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar) +" "+ str(current) + " images traitées sur "+ str(total), '[{:>7.2%}]'.format(frac), end='')
+
+def progbarKMean(current, total, full_progbar):
+    frac = current/total
+    filled_progbar = round(frac*full_progbar)
     print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar), '[{:>7.2%}]'.format(frac), end='')
+
+def progbarlog(current, total, full_progbar):
+    frac = current/total
+    filled_progbar = round(frac*full_progbar)
+    print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar) +" "+ str(current) + " nombre de couche écrites sur "+ str(total), '[{:>7.2%}]'.format(frac), end='')
 
 #show a message box (information)
 def newWindow(nC):
@@ -273,21 +283,31 @@ def errorwind(nerror):
 #The fonction writeLog create or uptade a file named logfile.txt.
 #this file contain SizeX, SizeY, SizeZ and all the refractive indexes of the image treatised.
 #all datas are parsed by a space " "
+
 def writeLog(matrice):
     os.chdir(directory2)
     file = open("logfile.txt","w+")
     file.truncate(0)
+    file.write("SizeX, SizeY, SizeZ : ")
+    file.write("\n")
     file.write(str(tailleMatriceX))
     file.write(" ")
     file.write(str(tailleMatriceY))
     file.write(" ")
     file.write(str(nbCouche))
-    file.write(" ")
+    file.write("\n")
+    file.write("bornInf, bornSup, pMin, pMax : ")
+    file.write("\n"+str(bornInf) + " "+ str(bornSup) + " "+ str(pMin)+ " "+ str(pMax) + "\n")
     for l in range(nbCouche):
+        progbar(l+1,nbCouche, 20)
+        sys.stdout.flush()
+        file.write("N Couche " + str(l) + " : " + "\n")
         for f in range(tailleMatriceY):
             for g in range(tailleMatriceX):
                 file.write(str(matrice[g][f][l]))
                 file.write(" ")
+            file.write("\n")
+        file.write("\n")
     file.close()
 
 
@@ -318,6 +338,8 @@ def calculeMinAndMax():
         histo = cropImag.histogram()
         for i in range(256):
             histoTotal[i] = histoTotal[i] + histo[i]
+        progbarKMean(n,nImageEtudie, 20)
+        sys.stdout.flush()
     c1 = [0,0,0] # part n°1, [Position of the center of the part,nombre of value inside of the part, sum of pixel's value of the part]
     c2 = [0,0,0] # part n°2
     c3 = [0,0,0] # part n°3
@@ -356,6 +378,8 @@ def calculeMinAndMax():
     #When center positions dont change, calcul of the limit between 2 parts.
     pMin = int((nvc2-nvc1)/2+nvc1)
     pMax = int((nvc3-nvc2)/2+nvc2)
+    progbarKMean(nImageEtudie,nImageEtudie, 20)
+    sys.stdout.flush()
     return pMin,pMax
 
 
@@ -400,6 +424,7 @@ tailleMatriceY = endY-startY
 
 
 #calcul of limit between white, gray and black
+print("Calcule des limites entre le blanc, gris, noir avec K mean clustering ...")
 [pMin,pMax] = calculeMinAndMax()
 
 
@@ -407,11 +432,15 @@ tailleMatriceY = endY-startY
 mat = [[[0 for i in range (500)] for j in range (tailleMatriceY)] for k in range (tailleMatriceX)]
 
 
-
+print("\n Nombre d'image à traiter : ", nImageEtudie)
 #Generation of refractive index layer
 #look over the nomber of picture defined by the user
 #To have the precision defined by the user, the programm uses a linear approximation. 2 pictures are used for linear approximation (i1 and i2).
+progbar(1,nImageEtudie, 20)
+sys.stdout.flush()
 for w in range(1,nImageEtudie):
+    progbar(w+1,nImageEtudie, 20)
+    sys.stdout.flush()
     nbImag = nbImag+1
     name = nomImage(w)
     i2 = Image.open(name)
@@ -429,10 +458,12 @@ for w in range(1,nImageEtudie):
         nbCouche = nbCouche + 1
     i1 = i2
 
+print("\n Nombre de couches générés : ",nbCouche)
 #write the result into a logfile.txt
+print("\n Ecriture des résultats dans le logfile.txt ...")
 writeLog(mat)
 newWindow(nbCouche)
-for i in range(100000+1):
-    progbar(i,100000, 20)
-    sys.stdout.flush()
+#for i in range(100000+1):
+#    progbar(i,100000, 20)
+#    sys.stdout.flush()
 print("\n")
