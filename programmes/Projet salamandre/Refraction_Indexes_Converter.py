@@ -434,4 +434,5 @@ writeLog(mat)
 newWindow(nbCouche)
 for i in range(100000+1):
     progbar(i,100000, 20)
+    sys.stdout.flush()
 print("\n")
