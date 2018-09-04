@@ -396,12 +396,16 @@ void Hynobius(){
   if (buffer)
   {
     //printf("%s\n", buffer );
-    aux = strtok(buffer, " ");
+    aux = strtok(buffer, "\n");
+    aux = strtok(NULL, " ");
     sizeX = atoi(aux);
     aux = strtok(NULL, " ");
     sizeY = atoi(aux);
     aux = strtok(NULL, " ");
     sizeZ = atoi(aux);
+    aux = strtok(NULL, "\n");
+    aux = strtok(NULL, "\n");
+    aux = strtok(NULL, "\n");
     aux = strtok(NULL, " ");
     tabl_n = (double***)malloc(sizeX * sizeof(double **));
     for (int index = 0;index < sizeX; index++){
@@ -414,20 +418,53 @@ void Hynobius(){
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < sizeX; k++){
        //if( aux != NULL ) {
+       if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){
         tabl_n[k][j][i] =(double) atof(aux);
         aux = strtok(NULL, " ");
+      }else if(k == sizeX-2){
+        tabl_n[k][j][i] =(double) atof(aux);
+        if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){
+          aux = strtok(NULL, "\n");
+        }else {
+        aux = strtok(NULL, ".");
+        cout << aux << endl;
+      }
+      }else if(k == sizeX-1 && j == sizeY-1){
+        tabl_n[k][j][i] =(double) atof(aux);
+        //cout << aux << endl;
+      //  aux = strtok(NULL, "\n");
+        //cout << aux << endl;
+        if (i != sizeZ-1){
+        aux = strtok(NULL,"\n");
+      //  cout << aux << endl;
+        aux = strtok(NULL, " ");
+      }
+      //  cout << aux << endl;
+    }
+
    //  }
       }
     }
+    //aux2 = strtok(NULL,"\n");
   }
   cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
- //printf("%f\n",f_in[8][9][13]);
+  for (int i = 0; i < sizeZ; i++){
+    for (int j = 0; j < sizeY; j++){
+      for (int k = 0; k < sizeX; k++){
+        printf("%f",tabl_n[k][j][i]);
+        printf("%s", " ");
+      }
+      printf("%s\n", "y");
+    }
+    printf("%s\n", "z");
+  }
 }
 }
 
 
 int main( int argc, char **argv ) {
   Hynobius();
+//  cout << "test";
   allocate();
   define_fin(f_in);
   defmatrix(beta);
