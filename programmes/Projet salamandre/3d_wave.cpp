@@ -386,15 +386,16 @@ void Hynobius(){
     long length = ftell (f);
     fseek (f, 0, SEEK_SET);
     buffer =(char*) malloc (length);
-    if (buffer)
-    {
+    printf("%d\n", length);
+    printf("buffer : %s\n", buffer);
+    if (buffer){
       fread (buffer, 1, length, f);
     }
     fclose (f);
   }
+  printf("%s\n", buffer);
 
-  if (buffer)
-  {
+  if (buffer){
     //printf("%s\n", buffer );
     aux = strtok(buffer, "\n");
     aux = strtok(NULL, " ");
@@ -417,63 +418,76 @@ void Hynobius(){
     for (int i = 0; i < sizeZ; i++){
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < sizeX; k++){
-       //if( aux != NULL ) {
-       if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){
-        tabl_n[k][j][i] =(double) atof(aux);
-        aux = strtok(NULL, " ");
-      }else if(k == sizeX-2){
-        tabl_n[k][j][i] =(double) atof(aux);
-        if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){
-          aux = strtok(NULL, "\n");
-        }else {
-        aux = strtok(NULL, ".");
-        cout << aux << endl;
+           //if( aux != NULL ) {
+           if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){
+            tabl_n[k][j][i] =(double) atof(aux);
+            aux = strtok(NULL, " ");
+          }else if(k == sizeX-2){
+            tabl_n[k][j][i] =(double) atof(aux);
+            if (i != sizeZ-1 || (i == sizeZ-1 && j != sizeY-1)){
+              aux = strtok(NULL, "\n");
+            }else {
+              cout << "i " << i << endl;
+              aux = strtok(NULL, "\n");
+              cout << aux << endl;
+            }
+          }else if(k == sizeX-1 && j == sizeY-1){
+            tabl_n[k][j][i] =(double) atof(aux);
+            //cout << aux << endl;
+          //  aux = strtok(NULL, "\n");
+            //cout << aux << endl;
+            if (i != sizeZ-1){
+              aux = strtok(NULL,"\n");
+            //  cout << aux << endl;
+              aux = strtok(NULL, " ");
+            }
+          //  cout << aux << endl;
+        }
+
+        }
       }
-      }else if(k == sizeX-1 && j == sizeY-1){
-        tabl_n[k][j][i] =(double) atof(aux);
-        //cout << aux << endl;
-      //  aux = strtok(NULL, "\n");
-        //cout << aux << endl;
-        if (i != sizeZ-1){
-        aux = strtok(NULL,"\n");
-      //  cout << aux << endl;
-        aux = strtok(NULL, " ");
-      }
-      //  cout << aux << endl;
+    //aux2 = strtok(NULL,"\n");
     }
 
-   //  }
+    cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
+    for (int i = 0; i < sizeZ; i++){
+      for (int j = 0; j < sizeY; j++){
+        for (int k = 0; k < sizeX; k++){
+          printf("%f",tabl_n[k][j][i]);
+          printf("%s", " ");
+        }
+        printf("%s%d\n", "ligne ", j);
       }
+      printf("%d\n", i);
     }
-    //aux2 = strtok(NULL,"\n");
+    cout << "Fini affichage" << endl;
+  } else {
+    cout << "else" << endl;
   }
-  cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
-  for (int i = 0; i < sizeZ; i++){
-    for (int j = 0; j < sizeY; j++){
-      for (int k = 0; k < sizeX; k++){
-        printf("%f",tabl_n[k][j][i]);
-        printf("%s", " ");
-      }
-      printf("%s\n", "y");
-    }
-    printf("%s\n", "z");
-  }
-}
+  buffer = NULL;
+  cout << "FINI FINI" << endl;
 }
 
 
 int main( int argc, char **argv ) {
   Hynobius();
-//  cout << "test";
+  cout << "fini Hynobius" << endl;
+
   allocate();
+
   define_fin(f_in);
+
   defmatrix(beta);
+
   double vi[q+1][3] = {{0,0,0},{v,0,0},{0,v,0},{-v,0,0},{0,-v,0},{0,0,v},{0,0,-v}};
-  //tabl_n[5][5][4] = 0.5;              // this line would create a source point and erase the refraction coefficient of the point [5][5][4]
+  //tabl_n[5][5][4] = 0.5;
+             // this line would create a source point and erase the refraction coefficient of the point [5][5][4]
   for (int i = 1; i <= 1;i++){
     rho_max = 0;
-    foutComputation(tabl_n,v,vi,f_in,i);
+    //foutComputation(tabl_n,v,vi,f_in,i);
   }
+
   //afficher(f_in, 4);
+
   return 0;
 }
