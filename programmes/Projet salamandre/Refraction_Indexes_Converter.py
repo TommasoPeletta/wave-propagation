@@ -231,6 +231,11 @@ def nomImage(num):
         s2 = saux1+s2
     return s1+s2+s3
 
+def progbar(current, total, full_progbar):
+    frac = current/total
+    filled_progbar = round(frac*full_progbar)
+    print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar), '[{:>7.2%}]'.format(frac), end='')
+
 #show a message box (information)
 def newWindow(nC):
     msg = QtGui.QMessageBox()
@@ -424,7 +429,9 @@ for w in range(1,nImageEtudie):
         nbCouche = nbCouche + 1
     i1 = i2
 
-
 #write the result into a logfile.txt
 writeLog(mat)
 newWindow(nbCouche)
+for i in range(100000+1):
+    progbar(i,100000, 20)
+print("\n")
