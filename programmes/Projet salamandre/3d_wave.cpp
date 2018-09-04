@@ -420,6 +420,7 @@ void Hynobius(){
       }
     }
   }
+  cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
  //printf("%f\n",f_in[8][9][13]);
 }
 }
