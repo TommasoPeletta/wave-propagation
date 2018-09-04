@@ -34,9 +34,9 @@ Refraction_Indexes_Converter.py :
 
 
     Ecriture du logfile :
-      Les premières lignes du logfile contiennent les dimensions de la matrice (sizeX, sizeY, sizeZ), puis les valeurs utilisée pour le calcul du coéfficient de réfraction :
+      Les premières lignes du logfile contiennent les dimensions de la matrice (sizeX, sizeY, sizeZ), puis les valeurs utilisées pour le calcul du coefficient de réfraction :
       bornInf et bornSup sont les indices de réfractions des pixels foncés et clairs respectivement.
-      pMin et pMax sont les valeurs frontières caculées par la méthode 3-moyenne, qui séparent les trois groupes de pixels.
+      pMin et pMax sont les valeurs frontières calculées par la méthode 3-moyenne, qui séparent les trois groupes de pixels.
 
       Viennent ensuite les indices de réfractions regroupés par couches.
       Chaque couche contient une ligne par valeur de y (sizeY lignes).
