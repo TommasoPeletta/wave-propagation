@@ -236,10 +236,10 @@ def progbar(current, total, full_progbar):
     filled_progbar = round(frac*full_progbar)
     print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar) +" "+ str(current) + " images traitées sur "+ str(total), '[{:>7.2%}]'.format(frac), end='')
 
-def progbarKMean(current, total, full_progbar):
+def progbarKMean(current, total, full_progbar, message):
     frac = current/total
     filled_progbar = round(frac*full_progbar)
-    print('\r', '#'*filled_progbar + '-'*(full_progbar-filled_progbar), '[{:>7.2%}]'.format(frac), end='')
+    print('\r', message +"  "+'#'*filled_progbar + '-'*(full_progbar-filled_progbar), '[{:>7.2%}]'.format(frac), end='')
 
 def progbarlog(current, total, full_progbar):
     frac = current/total
@@ -338,7 +338,7 @@ def calculeMinAndMax():
         histo = cropImag.histogram()
         for i in range(256):
             histoTotal[i] = histoTotal[i] + histo[i]
-        progbarKMean(n,nImageEtudie, 20)
+        progbarKMean(n,nImageEtudie, 20, "Parcours de toutes les images")
         sys.stdout.flush()
     c1 = [0,0,0] # part n°1, [Position of the center of the part,nombre of value inside of the part, sum of pixel's value of the part]
     c2 = [0,0,0] # part n°2
@@ -378,7 +378,7 @@ def calculeMinAndMax():
     #When center positions dont change, calcul of the limit between 2 parts.
     pMin = int((nvc2-nvc1)/2+nvc1)
     pMax = int((nvc3-nvc2)/2+nvc2)
-    progbarKMean(nImageEtudie,nImageEtudie, 20)
+    progbarKMean(nImageEtudie,nImageEtudie, 20, "Algorithme de K-mean clustering")
     sys.stdout.flush()
     return pMin,pMax
 
@@ -427,9 +427,9 @@ tailleMatriceY = endY-startY
 print("Calcule des limites entre le blanc, gris, noir avec K mean clustering ...")
 [pMin,pMax] = calculeMinAndMax()
 
-
 #matrix where will be result
-mat = [[[0 for i in range (500)] for j in range (tailleMatriceY)] for k in range (tailleMatriceX)]
+#(EspaceImage/precision)*nImageEtudie is the maximum  number of layer.
+mat = [[[0 for i in range (int((EspaceImage/precision)*nImageEtudie))] for j in range (tailleMatriceY)] for k in range (tailleMatriceX)]
 
 
 print("\n Nombre d'image à traiter : ", nImageEtudie)
@@ -451,7 +451,7 @@ for w in range(1,nImageEtudie):
                 c2 = i2.getpixel((x,y))
 
                 # linear approximation
-                vPixel = (10-(nbCouche*precision-(nbImag-2)*10))/10*c1+(10-((nbImag-1)*10-nbCouche*precision))/10*c2
+                vPixel = (EspaceImage-(nbCouche*precision-(nbImag-2)*EspaceImage))/EspaceImage*c1+(EspaceImage-((nbImag-1)*EspaceImage-nbCouche*precision))/EspaceImage*c2
 		# transform the value of the pixel into refractive index
                 ind = calculeIndice(vPixel)
                 mat[x-startX][y-startY][nbCouche] = ind
