@@ -1,5 +1,5 @@
 
-Ce fichier regroupe les explications de l'utilisation des deux programme décrits dans le documents "Projet salamandre".
+Ce fichier regroupe les explications de l'utilisation des trois programme décrits dans le documents "Projet salamandre".
 Y est ajouté une description d'un troisième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
 
 
