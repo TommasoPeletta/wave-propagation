@@ -5,7 +5,7 @@ from PyQt4 import QtGui, QtCore
 import sys
 import os
 
-#this program draw a layer celected by the user.
+#this program draw a layer selected by the user.
 
 # to run the program : python3 LogFileReader.py
 # A window will appear. You have to write the number of the layer that you want to draw.
