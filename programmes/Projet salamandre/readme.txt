@@ -1,6 +1,6 @@
 
-Ce fichier regroupe les explications de l'utilisation des deux programme décrits dans le documents "Projet salamandre".
-Y est ajouté une description d'un troisième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
+Ce fichier regroupe les explications de l'utilisation des trois programmes décrits dans le documents "Projet salamandre".
+Y est ajouté une description d'un quatrième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
 
 
 Refraction_Indexes_Converter.py :
@@ -29,8 +29,8 @@ Refraction_Indexes_Converter.py :
       Le code peut être exécuté à partir de python IDLE (https://www.python.org/downloads)
 
     Prérequis pour exécuter le programme (pas requis si lancé depuis l'exécutable) :
-      - librarie PIL
-      - librarie PyQt4 (sudo apt-get install python3-PyQt4)
+      - librairie PIL
+      - librairie PyQt4 (sudo apt-get install python3-PyQt4)
 
 
     Ecriture du logfile :
@@ -51,8 +51,8 @@ Refraction_Indexes_Converter.py :
 
 
 LogfileReader.py : 
-  LogfileReader.py  et un fichier qui permet de afficher une couche de la matrice des indices de      	réfraction contènue dans le logfile.txt.
-  Le programme demande à l'utilisateur de choisir la couche à traiter et affiche cette dernière avec  	les indices de réfraction les plus elevè plus clair et les indices de réfraction plus petit plus    	sombre. 
+  LogfileReader.py est un fichier qui permet d'afficher une couche de la matrice des indices de réfraction contenue dans le logfile.txt.
+Le programme demande à l'utilisateur de choisir la couche à traiter. Il affiche cette dernière en transformant les indices de réfraction en valeur de pixel noir et blanc. Veuillez prendre en compte que la valeur des pixels clairs prend pour valeur la moins élevée possible (la valeur la plus sombre pour leur partie). Alors que les pixels foncés prennent la valeur la plus élevée (la valeur la plus clair pour leur partie). Ceci explique le faible contraste de l’image crée. Veuillez consultez la figure n°5 pour plus de compréhension. 
 
 
 Exécution du programme :
@@ -64,8 +64,8 @@ Exécution du programme :
       Le code peut être exécuté à partir de python IDLE (https://www.python.org/downloads)
 
     Prérequis pour exécuter le programme :
-      - librarie PIL
-      - librarie PyQt4 (sudo apt-get install python3-PyQt4)
+      - librairie PIL
+      - librairie PyQt4 (sudo apt-get install python3-PyQt4)
 
 
 
