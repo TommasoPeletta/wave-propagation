@@ -50,9 +50,9 @@ Refraction_Indexes_Converter.py :
 
 
 
-LogfileReader.py : 
+LogfileReader.py :
   LogfileReader.py est un fichier qui permet d'afficher une couche de la matrice des indices de réfraction contenue dans le logfile.txt.
-Le programme demande à l'utilisateur de choisir la couche à traiter. Il affiche cette dernière en transformant les indices de réfraction en valeur de pixel noir et blanc. Veuillez prendre en compte que la valeur des pixels clairs prend pour valeur la moins élevée possible (la valeur la plus sombre pour leur partie). Alors que les pixels foncés prennent la valeur la plus élevée (la valeur la plus clair pour leur partie). Ceci explique le faible contraste de l’image crée. Veuillez consultez la figure n°5 pour plus de compréhension. 
+Le programme demande à l'utilisateur de choisir la couche à traiter. Il affiche cette dernière en transformant les indices de réfraction en valeur de pixel noir et blanc. Veuillez prendre en compte que la valeur des pixels clairs prend pour valeur la moins élevée possible (la valeur la plus sombre pour leur partie). Alors que les pixels foncés prennent la valeur la plus élevée (la valeur la plus clair pour leur partie). Ceci explique le faible contraste de l’image crée.
 
 
 Exécution du programme :
