@@ -1,6 +1,6 @@
 
 Ce fichier regroupe les explications de l'utilisation des trois programme décrits dans le documents "Projet salamandre".
-Y est ajouté une description d'un troisième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
+Y est ajouté une description d'un quatrième programme, 2d_wave_Graphic.cpp, que nous avons utilisé pour les tests de la LBM en deux dimensions.
 
 
 Refraction_Indexes_Converter.py :
