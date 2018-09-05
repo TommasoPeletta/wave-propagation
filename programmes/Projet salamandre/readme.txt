@@ -50,6 +50,30 @@ Refraction_Indexes_Converter.py :
 
 
 
+LogfileReader.py : 
+  LogfileReader.py  et un fichier qui permet de afficher une couche de la matrice des indices de      	réfraction contènue dans le logfile.txt.
+  Le programme demande à l'utilisateur de choisir la couche à traiter et affiche cette dernière avec  	les indices de réfraction les plus elevè plus clair et les indices de réfraction plus petit plus    	sombre. 
+
+
+Exécution du programme :
+
+    (pour Linux)
+      Le code peut être exécuté depuis la ligne de commande : python3 LogfileReader.py
+
+    (pour Window)
+      Le code peut être exécuté à partir de python IDLE (https://www.python.org/downloads)
+
+    Prérequis pour exécuter le programme :
+      - librarie PIL
+      - librarie PyQt4 (sudo apt-get install python3-PyQt4)
+
+
+
+
+
+
+
+
 
 3d_wave.cpp :
 
