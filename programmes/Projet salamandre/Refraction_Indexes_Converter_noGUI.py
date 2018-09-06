@@ -4,7 +4,7 @@ from PIL import Image
 import sys
 import os
 
-# Command to launch the program : python3 Refraction_Indexes_Converter.py <StartX> <StartY> <EndX> <EndY> <Distance between two pixels of the image> <Distance between two layers> <White refraction index> <Black refraction index> <Number of images> <Select directory of images> <Select directory where logfile will be created or updated>
+# Command to launch the program : python3 Refraction_Indexes_Converter_noGUI.py <StartX> <StartY> <EndX> <EndY> <Distance between two pixels of the image> <Distance between two layers> <White refraction index> <Black refraction index> <Number of images> <Select directory of images> <Select directory where logfile will be created or updated>
 
 directory = "./"    #representing the directory containing the images to convert
 startdir = os.getcwd() #current directory

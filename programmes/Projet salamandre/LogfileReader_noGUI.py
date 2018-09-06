@@ -6,7 +6,7 @@ import os
 
 #this program draw a layer selected by the user.
 
-# to run the program : python3 LogFileReader.py number_of_layer_to_show
+# to run the program : python3 LogFileReader_noGUI.py number_of_layer_to_show
 
 
 
