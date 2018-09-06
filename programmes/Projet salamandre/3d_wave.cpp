@@ -401,6 +401,7 @@ void Hynobius(){
     sizeY = atoi(aux);
     aux = strtok(NULL, " ");
     sizeZ = atoi(aux);
+    printf("Nombre de couche à traiter : %d\n", sizeZ);
     aux = strtok(NULL, "\n");
     aux = strtok(NULL, "\n");
     aux = strtok(NULL, "\n");
@@ -416,6 +417,8 @@ void Hynobius(){
     }
     //parsing refraction indexes
     for (int i = 0; i < sizeZ; i++){
+      printf("\r Numéro couche traité : %d ", i+1);
+      fflush(stdout);
       for (int j = 0; j < sizeY; j++){
         for (int k = 0; k < sizeX; k++){
            if (k != sizeX-2 && !(k == sizeX-1 && j == sizeY-1)){ //default case
@@ -441,7 +444,7 @@ void Hynobius(){
       }
     }
 
-    cout << "data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
+    cout << "\n Data extracted from logfile"<< endl << "sizeX = " << sizeX << ", sizeY = " << sizeY << ", sizeZ = "<< sizeZ << endl ;
 
   } else {
     cout << "erreur : buffer vide" << endl;
@@ -451,8 +454,9 @@ void Hynobius(){
 
 
 int main( int argc, char **argv ) {
+	cout << "Logfile reading ..."<< endl;
   Hynobius();
-
+	cout << "\nStarting LBM." << endl;
   allocate();
 
   define_fin(f_in);
